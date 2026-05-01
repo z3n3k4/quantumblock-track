@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark" data-hash-prom="hero">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuantumBlock — Track Record</title>
+<link rel="stylesheet" href="styles.css?v=4">
+<link rel="stylesheet" href="landing-anim.css?v=3">
+<style>
+  /* ============================================================
+     Track Record — page-specific
+     ============================================================ */
+  .header-block {
+    border-bottom: 1px solid var(--line);
+    padding: 36px 0 24px;
+    margin-bottom: 24px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    gap: 32px;
+  }
+  .header-block h1 { max-width: 780px; }
+  .header-block .sub { max-width: 720px; color: var(--ink-dim); font-size: 14px; line-height: 1.6; margin-top: 12px; }
+  .header-block .meta {
+    text-align: right;
+    font-size: 11px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    line-height: 1.7;
+  }
+  .header-block .meta b { color: var(--ink); font-weight: 500; letter-spacing: 0.05em; }
+
+  /* metric strip */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    border: 1px solid var(--line);
+    background: var(--bg-1);
+    margin-bottom: 32px;
+  }
+  .metric {
+    padding: 16px 18px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .metric:nth-child(5n) { border-right: none; }
+  .metric:nth-last-child(-n+5) { border-bottom: none; }
+  .metric .lbl {
+    font-size: 10px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 8px;
+  }
+  .metric .val {
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .metric .sub {
+    font-size: 10px;
+    color: var(--ink-faint);
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .metric .delta {
+    position: absolute;
+    top: 16px; right: 18px;
+    font-size: 10px;
+    font-weight: 500;
+  }
+
+  /* chain visualization */
+  .chain-strip {
+    margin-bottom: 32px;
+    border: 1px solid var(--line);
+    background: var(--bg-1);
+  }
+  .chain-head {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 16px;
+  }
+  .chain-head h3 { color: var(--green); }
+  .chain-head .hint { font-size: 10px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.08em; }
+  .chain-canvas {
+    padding: 24px 16px;
+    overflow-x: auto;
+    background:
+      radial-gradient(circle at 50% 50%, var(--bg-2) 0%, var(--bg-1) 100%);
+  }
+  .chain-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    min-width: max-content;
+  }
+  .chain-block {
+    flex: 0 0 auto;
+    width: 132px;
+    height: 88px;
+    border: 1px solid var(--line-2);
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 8px 10px;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 120ms ease;
+    position: relative;
+  }
+  .chain-block:hover {
+    border-color: var(--green);
+    z-index: 2;
+  }
+  .chain-block.win { border-left: 3px solid var(--green); }
+  .chain-block.loss { border-left: 3px solid var(--red); }
+  .chain-block.open { border-left: 3px solid var(--amber); }
+  .chain-block .b-id {
+    font-size: 9px;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .chain-block .b-pnl {
+    font-size: 16px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .chain-block .b-hash {
+    font-size: 9px;
+    color: var(--hash-tone);
+    letter-spacing: 0.04em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .chain-link {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 1px;
+    background: var(--line-2);
+    position: relative;
+  }
+  .chain-link::after {
+    content: "";
+    position: absolute;
+    right: -1px; top: 50%;
+    width: 6px; height: 6px;
+    border-top: 1px solid var(--line-2);
+    border-right: 1px solid var(--line-2);
+    transform: translateY(-50%) rotate(45deg);
+  }
+  .chain-block.genesis {
+    background: repeating-linear-gradient(
+      45deg,
+      var(--bg) 0 4px,
+      var(--bg-1) 4px 8px
+    );
+    border-color: var(--ink-faint);
+  }
+  .chain-block.genesis .b-pnl { font-size: 11px; color: var(--ink-faint); letter-spacing: 0; }
+
+  /* layout grid for open + history */
+  .grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 1100px) {
+    .grid-2col { grid-template-columns: 1fr; }
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .metric:nth-child(5n) { border-right: 1px solid var(--line); }
+    .metric:nth-child(2n) { border-right: none; }
+    .metric:nth-last-child(-n+5) { border-bottom: 1px solid var(--line); }
+    .metric:nth-last-child(-n+2) { border-bottom: none; }
+  }
+
+  .panel-head {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 12px;
+  }
+  .panel-head h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink); }
+  .panel-head .ct { color: var(--ink-faint); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* trade card */
+  .trade-card {
+    border-bottom: 1px solid var(--line);
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 18px;
+    align-items: center;
+  }
+  .trade-card:last-child { border-bottom: none; }
+  .trade-card .tc-id {
+    font-size: 18px;
+    color: var(--ink-dim);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    min-width: 36px;
+  }
+  .trade-card .tc-mid { display: flex; flex-direction: column; gap: 6px; }
+  .trade-card .tc-row1 { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .trade-card .tc-sym { font-weight: 500; letter-spacing: 0.04em; }
+  .trade-card .tc-meta { color: var(--ink-faint); font-size: 11px; letter-spacing: 0.04em; }
+  .trade-card .tc-bar {
+    height: 28px;
+    position: relative;
+    border: 1px solid var(--line);
+    background: var(--bg);
+    display: flex;
+    align-items: stretch;
+  }
+  .trade-card .tc-bar .seg {
+    flex: 1;
+    border-right: 1px dotted var(--line-2);
+    position: relative;
+    font-size: 9px;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .trade-card .tc-bar .seg:last-child { border-right: none; }
+  .trade-card .tc-bar .seg.hit { background: var(--green-bg); color: var(--green); }
+  .trade-card .tc-bar .seg.miss-sl { background: var(--red-bg); color: var(--red); }
+  .trade-card .tc-right {
+    text-align: right;
+    display: flex; flex-direction: column; gap: 4px; align-items: flex-end;
+    min-width: 110px;
+  }
+  .trade-card .tc-pnl {
+    font-size: 18px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .trade-card .tc-hash {
+    font-size: 10px;
+    color: var(--hash-tone);
+    letter-spacing: 0.04em;
+  }
+
+  /* table */
+  .table-wrap { overflow-x: auto; }
+  table.qb {
+    width: 100%; border-collapse: collapse;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  table.qb th {
+    padding: 12px 12px;
+    text-align: left;
+    font-weight: 500;
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 10px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-1);
+    position: sticky; top: 0;
+    cursor: pointer;
+    user-select: none;
+  }
+  table.qb th.num, table.qb td.num { text-align: right; }
+  table.qb th:hover { color: var(--ink); }
+  table.qb th .arrow { color: var(--ink-faint); font-size: 9px; margin-left: 4px; }
+  table.qb th.sorted .arrow { color: var(--green); }
+  table.qb td {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+  }
+  table.qb tbody tr:hover { background: var(--bg-2); }
+  table.qb td.muted { color: var(--ink-dim); }
+  table.qb td.hash-cell { font-size: 11px; color: var(--hash-tone); letter-spacing: 0.04em; }
+  table.qb .tp-hit  { color: var(--green); }
+  table.qb .tp-miss { color: var(--ink-faint); opacity: 0.6; }
+  table.qb td.empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ink-faint);
+    font-style: italic;
+    border-bottom: none;
+  }
+
+  .filter-row {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+  }
+  .filter-pill {
+    padding: 5px 12px;
+    font-size: 11px;
+    font-family: inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border: 1px solid var(--line-2);
+    background: transparent;
+    color: var(--ink-dim);
+    cursor: pointer;
+  }
+  .filter-pill:hover { color: var(--ink); border-color: var(--ink-dim); }
+  .filter-pill.active { color: var(--green); border-color: var(--green); background: var(--green-bg); }
+  .search-input {
+    padding: 6px 10px;
+    background: var(--bg);
+    border: 1px solid var(--line-2);
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 11px;
+    min-width: 220px;
+  }
+  .search-input::placeholder { color: var(--ink-faint); }
+  .search-input:focus { outline: none; border-color: var(--green); }
+
+  /* distributions */
+  .dist-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 1100px) { .dist-grid { grid-template-columns: 1fr; } }
+  .dist-chart {
+    height: 160px;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    padding: 16px 20px 36px;
+    border-top: 1px dashed var(--line);
+    position: relative;
+  }
+  .dist-chart .axis-line {
+    position: absolute;
+    left: 20px; right: 20px;
+    bottom: 36px;
+    height: 1px;
+    background: var(--line-2);
+  }
+  .dist-chart .bar {
+    flex: 1;
+    background: var(--green-dim);
+    min-height: 1px;
+    position: relative;
+    transition: background 120ms;
+  }
+  .dist-chart .bar.neg { background: var(--red-dim); }
+  .dist-chart .bar:hover { background: var(--green); }
+  .dist-chart .bar.neg:hover { background: var(--red); }
+  .dist-axis {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 20px;
+    font-size: 10px;
+    color: var(--ink-faint);
+    margin-top: -28px;
+  }
+
+  /* verify card */
+  .verify-card {
+    border: 1px solid var(--line);
+    background: var(--bg-1);
+    padding: 28px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  .verify-card .seal {
+    width: 88px; height: 88px;
+    border: 1px solid var(--green);
+    color: var(--green);
+    display: grid; place-items: center;
+    font-size: 9px;
+    text-align: center;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    background: var(--green-bg);
+    position: relative;
+    flex: 0 0 auto;
+  }
+  .verify-card .seal::before, .verify-card .seal::after {
+    content: ""; position: absolute;
+    width: 12px; height: 12px;
+    border: 1px solid var(--green);
+  }
+  .verify-card .seal::before { top: -5px; left: -5px; border-right: none; border-bottom: none; }
+  .verify-card .seal::after  { bottom: -5px; right: -5px; border-left: none; border-top: none; }
+  .verify-card h3 { color: var(--green); font-size: 12px; }
+  .verify-card p { color: var(--ink-dim); font-size: 13px; line-height: 1.7; margin: 8px 0 0; max-width: 720px; }
+  .verify-card .links {
+    margin-top: 16px;
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .verify-card .genesis-line {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--line);
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+  .verify-card .genesis-line code {
+    color: var(--hash-tone);
+    background: var(--bg);
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    margin-left: 8px;
+    font-size: 10px;
+    word-break: break-all;
+  }
+
+  /* tweaks panel */
+  .qb-tweaks {
+    position: fixed;
+    bottom: 24px; right: 24px;
+    width: 280px;
+    background: var(--bg-1);
+    border: 1px solid var(--line-2);
+    z-index: 100;
+    font-size: 11px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    display: none;
+  }
+  .qb-tweaks.open { display: block; }
+  .qb-tweaks .t-head {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: center;
+    text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ink-dim);
+  }
+  .qb-tweaks .t-head button {
+    background: transparent; border: none; color: var(--ink-faint);
+    cursor: pointer; font-family: inherit; font-size: 14px;
+  }
+  .qb-tweaks .t-body { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+  .qb-tweaks .t-row { display: flex; flex-direction: column; gap: 6px; }
+  .qb-tweaks .t-lbl { font-size: 10px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.1em; }
+  .qb-tweaks .seg { display: flex; border: 1px solid var(--line-2); }
+  .qb-tweaks .seg button {
+    flex: 1; padding: 6px 8px; background: transparent;
+    border: none; border-right: 1px solid var(--line-2);
+    color: var(--ink-dim); font-family: inherit; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer;
+  }
+  .qb-tweaks .seg button:last-child { border-right: none; }
+  .qb-tweaks .seg button.active { background: var(--green); color: var(--bg); }
+
+  /* corner registration marks */
+  .reg {
+    position: fixed;
+    width: 14px; height: 14px;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .reg::before, .reg::after { content: ""; position: absolute; background: var(--ink-faint); }
+  .reg::before { left: 0; top: 50%; right: 0; height: 1px; }
+  .reg::after  { top: 0; left: 50%; bottom: 0; width: 1px; }
+  .reg.tl { top: 6px; left: 6px; }
+  .reg.tr { top: 6px; right: 6px; }
+  .reg.bl { bottom: 6px; left: 6px; }
+  .reg.br { bottom: 6px; right: 6px; }
+</style>
+</head>
+<body>
+
+<div class="reg tl"></div>
+<div class="reg tr"></div>
+
+<!-- top bar -->
+<div class="qb-bar">
+  <a href="index.html" class="brand">
+    <span class="mark"></span>
+    <b>QUANTUMBLOCK</b>
+    <span class="slash">//</span>
+    <span data-i18n="nav_track">Track Record</span>
+  </a>
+  <nav>
+    <a href="index.html" data-i18n="nav_landing">Inicio</a>
+    <a href="track-record.html" class="active" data-i18n="nav_track">Track Record</a>
+    <a href="verify.html" data-i18n="nav_verify">Verificar</a>
+    <button class="nav-btn" id="lang-toggle" title="Toggle language">ES / EN</button>
+    <button class="nav-btn" id="theme-toggle" title="Toggle theme">◐</button>
+  </nav>
+</div>
+
+<!-- DNA helix strip (cryptographic strand) -->
+<div class="hash-marquee" id="helix-strip" aria-hidden="true">
+  <div class="helix-label">// CHAIN.<b>HELIX</b> · sha256 · genesis → tip</div>
+</div>
+
+<main class="qb-main">
+
+  <!-- header -->
+  <div class="header-block">
+    <div>
+      <div class="kicker mb-16" data-i18n="track_kicker">Track record auditable</div>
+      <h1 class="serif" data-i18n="track_title">Cada señal, encadenada.</h1>
+      <p class="sub" data-i18n="track_sub">Historial inmutable de señales BTC. Hash chain SHA256, verificable independientemente. Sin retoques. Sin huecos.</p>
+    </div>
+    <div class="meta">
+      <div><span data-i18n="status_live">Cadena viva</span> · <b id="chain-len">—</b></div>
+      <div><span data-i18n="last_update">Última actualización</span></div>
+      <div><b id="last-update-val">—</b></div>
+      <div class="row gap-8" style="margin-top: 12px; justify-content: flex-end;">
+        <button class="btn" id="state-toggle">populated · empty</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- metrics -->
+  <div class="metrics" id="metrics-grid"></div>
+
+  <!-- chain visualization -->
+  <div class="chain-strip">
+    <div class="chain-head">
+      <div>
+        <h3 data-i18n="chain_title">Cadena de bloques</h3>
+        <div class="hint" data-i18n="chain_sub" style="margin-top:4px; text-transform:none; letter-spacing:0.02em; font-size:11px; color: var(--ink-dim);">
+          Cada bloque referencia el hash del anterior. Modificar uno rompe la cadena.
+        </div>
+      </div>
+      <div class="hint">SHA256 · TIP → GENESIS</div>
+    </div>
+    <div class="chain-canvas">
+      <div class="chain-row" id="chain-row"></div>
+    </div>
+  </div>
+
+  <!-- open + recent -->
+  <div class="grid-2col">
+    <section class="card">
+      <div class="panel-head">
+        <h2 data-i18n="open_title">Posiciones abiertas</h2>
+        <span class="ct" id="open-count">—</span>
+      </div>
+      <div id="open-list"></div>
+    </section>
+    <section class="card">
+      <div class="panel-head">
+        <h2>RECENT · TRADES</h2>
+        <span class="ct">LAST 6</span>
+      </div>
+      <div id="recent-list"></div>
+    </section>
+  </div>
+
+  <!-- distributions -->
+  <section class="card mb-32">
+    <div class="panel-head">
+      <h2 data-i18n="dist_title">Distribuciones</h2>
+      <span class="ct">CLOSED N=<span id="closed-n">—</span></span>
+    </div>
+    <div class="dist-grid" style="padding: 0; margin: 0; gap: 0;">
+      <div style="border-right: 1px solid var(--line); padding: 16px 20px;">
+        <div class="kicker no-rule mb-8" data-i18n="dist_pnl">PnL por trade (%)</div>
+        <div class="dist-chart" id="dist-pnl"></div>
+        <div class="dist-axis" id="dist-pnl-axis"></div>
+      </div>
+      <div style="border-right: 1px solid var(--line); padding: 16px 20px;">
+        <div class="kicker no-rule mb-8" data-i18n="dist_hold">Hold time (h)</div>
+        <div class="dist-chart" id="dist-hold"></div>
+        <div class="dist-axis" id="dist-hold-axis"></div>
+      </div>
+      <div style="padding: 16px 20px;">
+        <div class="kicker no-rule mb-8" data-i18n="dist_rr">R:R alcanzado</div>
+        <div class="dist-chart" id="dist-rr"></div>
+        <div class="dist-axis" id="dist-rr-axis"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- full history -->
+  <section class="card mb-32">
+    <div class="panel-head" style="flex-direction: column; align-items: stretch; gap: 14px;">
+      <div class="row between wrap" style="gap: 12px;">
+        <h2 data-i18n="history_title">Histórico completo</h2>
+        <div class="row gap-8">
+          <input type="text" class="search-input" id="history-search" placeholder="Buscar id, símbolo, hash…" data-i18n-attr="placeholder:history_search">
+        </div>
+      </div>
+      <div class="filter-row" id="filter-row">
+        <button class="filter-pill active" data-filter="all" data-i18n="history_filter_all">Todas</button>
+        <button class="filter-pill" data-filter="long" data-i18n="history_filter_long">Long</button>
+        <button class="filter-pill" data-filter="short" data-i18n="history_filter_short">Short</button>
+        <button class="filter-pill" data-filter="win" data-i18n="history_filter_win">Win</button>
+        <button class="filter-pill" data-filter="loss" data-i18n="history_filter_loss">Loss</button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="qb" id="history-table">
+        <thead>
+          <tr>
+            <th class="num" data-sort="id"><span data-i18n="th_id">#</span><span class="arrow"></span></th>
+            <th data-sort="ts"><span data-i18n="th_date">Fecha</span><span class="arrow"></span></th>
+            <th data-sort="symbol"><span data-i18n="th_sym">Symbol</span></th>
+            <th data-sort="direction"><span data-i18n="th_dir">Dir</span></th>
+            <th class="num" data-sort="entry"><span data-i18n="th_entry">Entry</span></th>
+            <th class="num" data-sort="sl"><span data-i18n="th_sl">SL</span></th>
+            <th class="num" data-sort="tp1"><span data-i18n="th_tp1">TP1</span></th>
+            <th class="num" data-sort="tp2"><span data-i18n="th_tp2">TP2</span></th>
+            <th class="num" data-sort="tp3"><span data-i18n="th_tp3">TP3</span></th>
+            <th data-sort="status"><span data-i18n="th_status">Estado</span></th>
+            <th class="num" data-sort="pnl"><span data-i18n="th_pnl">PnL</span><span class="arrow"></span></th>
+            <th><span data-i18n="th_hash">Hash</span></th>
+          </tr>
+        </thead>
+        <tbody id="history-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- verify card -->
+  <section class="verify-card" id="verify">
+    <div class="seal">
+      SHA256<br>CHAINED<br>· VERIFIABLE ·
+    </div>
+    <div>
+      <div class="kicker no-rule mb-8">/ verify</div>
+      <h2 class="serif" style="font-size: 28px;" data-i18n="verify_title">¿Cómo verificar?</h2>
+      <p data-i18n="verify_p1">Cada fila incluye un row_hash (SHA256) que enlaza con la fila anterior, formando una cadena inmutable. Si alguien modifica un valor histórico, el hash cambia y la cadena se rompe.</p>
+      <p data-i18n="verify_p2">Descarga signals.json o signals.csv y ejecuta el script de verify.md. Reproducible en 5 líneas de Python.</p>
+      <div class="links">
+        <a href="signals.json" class="btn">↓ signals.json</a>
+        <a href="signals.csv" class="btn">↓ signals.csv</a>
+        <a href="verify.md" class="btn">↓ verify.md</a>
+      </div>
+      <div class="genesis-line">
+        <span data-i18n="verify_genesis">Genesis hash</span>
+        <code>0000000000000000000000000000000000000000000000000000000000000000</code>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="qb-footer">
+  <div>QUANTUMBLOCK · 2026 · <span data-i18n="footer_legal">Información histórica auditable. No constituye asesoramiento financiero.</span></div>
+  <div class="row gap-16">
+    <a href="signals.json">JSON</a>
+    <a href="signals.csv">CSV</a>
+    <a href="verify.html">VERIFY</a>
+  </div>
+</footer>
+
+<div class="reg bl"></div>
+<div class="reg br"></div>
+
+<!-- Tweaks panel -->
+<div class="qb-tweaks" id="tweaks-panel">
+  <div class="t-head">
+    <span>TWEAKS</span>
+    <button id="tweaks-close">×</button>
+  </div>
+  <div class="t-body">
+    <div class="t-row">
+      <div class="t-lbl">Theme</div>
+      <div class="seg" data-tweak="theme">
+        <button data-val="dark">Dark</button>
+        <button data-val="light">Light</button>
+      </div>
+    </div>
+    <div class="t-row">
+      <div class="t-lbl">Hash chain prominence</div>
+      <div class="seg" data-tweak="hashProm">
+        <button data-val="hero">Hero</button>
+        <button data-val="standard">Standard</button>
+        <button data-val="subtle">Subtle</button>
+      </div>
+    </div>
+    <div class="t-row">
+      <div class="t-lbl">Language</div>
+      <div class="seg" data-tweak="lang">
+        <button data-val="es">ES</button>
+        <button data-val="en">EN</button>
+      </div>
+    </div>
+    <div class="t-row">
+      <div class="t-lbl">Background motion</div>
+      <div class="seg" data-tweak="bgIntensity">
+        <button data-val="off">Off</button>
+        <button data-val="subtle">Subtle</button>
+        <button data-val="normal">Normal</button>
+        <button data-val="intense">Intense</button>
+      </div>
+    </div>
+    <div class="t-row">
+      <div class="t-lbl">Data state</div>
+      <div class="seg" data-tweak="state">
+        <button data-val="populated">Populated</button>
+        <button data-val="empty">Empty</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js?v=3"></script>
+<script src="qb-bg.js?v=3"></script>
+<script src="track.js?v=2"></script>
+<script src="landing-anim.js?v=3"></script>
+</body>
+</html>

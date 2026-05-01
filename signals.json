@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-05-01 02:24 UTC",
+  "metrics": {
+    "total": 0,
+    "open": 0,
+    "closed": 0,
+    "win_rate_pct": null,
+    "tp1_rate_pct": null,
+    "tp2_rate_pct": null,
+    "tp3_rate_pct": null,
+    "avg_pnl_pct": null,
+    "best_pct": null,
+    "worst_pct": null
+  },
+  "genesis_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "signals": []
+}

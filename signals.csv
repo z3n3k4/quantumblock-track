@@ -1,0 +1,1 @@
+id,timestamp_emision,symbol,direction,timeframe,entry_price,stop_loss,target_1,target_2,target_3,source,tp1_hit_at,tp2_hit_at,tp3_hit_at,closed_at,close_reason,close_price,prev_hash,row_hash

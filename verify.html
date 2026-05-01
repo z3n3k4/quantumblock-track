@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuantumBlock — Verificación</title>
+<link rel="stylesheet" href="styles.css?v=4">
+<link rel="stylesheet" href="landing-anim.css?v=3">
+<style>
+  .vp-wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 80px 24px 96px;
+  }
+  .vp-kicker {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .vp-kicker::before {
+    content: ""; width: 28px; height: 1px; background: var(--green);
+  }
+  .vp-wrap h1 {
+    font-family: 'Fraunces', 'Times New Roman', serif;
+    font-size: clamp(36px, 5vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin: 0 0 20px;
+    color: var(--ink);
+  }
+  .vp-lead {
+    color: var(--ink-dim);
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 720px;
+    margin-bottom: 48px;
+  }
+  .vp-section {
+    margin: 56px 0 0;
+  }
+  .vp-section h2 {
+    font-family: 'Fraunces', 'Times New Roman', serif;
+    font-size: 28px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin: 0 0 20px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  .vp-section h3 {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin: 32px 0 12px;
+  }
+  .vp-section p, .vp-section li {
+    color: var(--ink-dim);
+    font-size: 14px;
+    line-height: 1.75;
+  }
+  .vp-section ol, .vp-section ul {
+    padding-left: 22px;
+  }
+  .vp-section li { margin-bottom: 10px; }
+  .vp-section code {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    padding: 2px 7px;
+    font-size: 12.5px;
+    color: var(--green);
+    font-family: 'DM Mono', ui-monospace, 'JetBrains Mono', monospace;
+  }
+  .vp-section pre {
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    padding: 20px 22px;
+    overflow-x: auto;
+    font-size: 12.5px;
+    line-height: 1.65;
+    color: var(--ink);
+    font-family: 'DM Mono', ui-monospace, 'JetBrains Mono', monospace;
+    margin: 18px 0;
+  }
+  .vp-section pre code {
+    background: transparent; border: none; padding: 0; color: inherit;
+  }
+  .vp-section pre .kw { color: var(--green); }
+  .vp-section pre .str { color: #c9d1d9; }
+  .vp-section pre .com { color: var(--ink-muted); font-style: italic; }
+  .vp-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+  }
+  .vp-genesis {
+    margin-top: 56px;
+    padding: 20px 22px;
+    border: 1px solid var(--line);
+    background: var(--bg-1);
+    font-family: 'DM Mono', ui-monospace, monospace;
+    font-size: 11px;
+    color: var(--ink-muted);
+    word-break: break-all;
+  }
+  .vp-genesis .lbl {
+    display: block;
+    color: var(--green);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .vp-genesis code {
+    background: transparent; border: none; padding: 0;
+    color: var(--ink);
+    font-size: 12px;
+  }
+  .vp-back {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--ink-dim);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    margin-bottom: 32px;
+  }
+  .vp-back:hover { color: var(--green); }
+</style>
+</head>
+<body>
+
+<!-- top bar -->
+<div class="qb-bar">
+  <a href="index.html" class="brand">
+    <span class="mark"></span>
+    <b>QUANTUMBLOCK</b>
+    <span class="kicker no-rule">// signals · BTC</span>
+  </a>
+  <nav>
+    <a href="index.html" data-i18n="nav_landing">Inicio</a>
+    <a href="track-record.html" data-i18n="nav_track">Track Record</a>
+    <a href="verify.html" class="active" data-i18n="nav_verify">Verificar</a>
+    <button class="nav-btn" id="lang-toggle" title="Toggle language">ES / EN</button>
+    <button class="nav-btn" id="theme-toggle" title="Toggle theme">◐</button>
+  </nav>
+</div>
+
+<main class="vp-wrap">
+
+  <a href="index.html" class="vp-back">← Inicio</a>
+
+  <div class="vp-kicker" data-anim="fade-up">/ verificación criptográfica</div>
+  <h1 data-anim="fade-up">Verificación del hash chain.</h1>
+  <p class="vp-lead" data-anim="fade-up">
+    Cada señal en este track record está enlazada criptográficamente con la anterior
+    mediante un hash SHA256, formando una cadena inmutable. Si cualquier valor
+    histórico (entry, SL, target, timestamp, símbolo, dirección) se modifica
+    después de su emisión, el hash de esa fila ya no coincide con su valor original
+    y la cadena se rompe en ese punto.
+  </p>
+
+  <section class="vp-section" data-stagger>
+    <h2>Cómo verificar localmente</h2>
+    <ol>
+      <li>Descarga <code>signals.json</code> (formato completo) o <code>signals.csv</code> (para análisis).</li>
+      <li>Para cada fila, recomputa:
+        <pre><code>row_hash = SHA256(prev_hash + "|" + canonical_json(material_fields))</code></pre>
+        donde <code>material_fields</code> son: <code>id</code>, <code>timestamp_emision</code>, <code>symbol</code>, <code>direction</code>, <code>timeframe</code>, <code>entry_price</code>, <code>stop_loss</code>, <code>target_1</code>, <code>target_2</code>, <code>target_3</code>, <code>source</code>.
+      </li>
+      <li>La primera fila usa <code>prev_hash = "0000...0000"</code> (64 ceros = genesis).</li>
+      <li>Cada fila siguiente usa el <code>row_hash</code> de la fila anterior como <code>prev_hash</code>.</li>
+    </ol>
+  </section>
+
+  <section class="vp-section" data-anim="fade-up">
+    <h2>Script de verificación (Python)</h2>
+    <pre><code><span class="kw">import</span> hashlib, json, csv
+
+GENESIS = <span class="str">"0"</span> * 64
+MATERIAL_KEYS = (<span class="str">"id"</span>, <span class="str">"timestamp_emision"</span>, <span class="str">"symbol"</span>, <span class="str">"direction"</span>,
+                 <span class="str">"timeframe"</span>, <span class="str">"entry_price"</span>, <span class="str">"stop_loss"</span>,
+                 <span class="str">"target_1"</span>, <span class="str">"target_2"</span>, <span class="str">"target_3"</span>, <span class="str">"source"</span>)
+
+<span class="kw">def</span> canonical(d):
+    <span class="kw">return</span> json.dumps(d, sort_keys=<span class="kw">True</span>, separators=(<span class="str">","</span>, <span class="str">":"</span>), ensure_ascii=<span class="kw">False</span>)
+
+<span class="kw">def</span> row_hash(material, prev_hash):
+    <span class="kw">return</span> hashlib.sha256((prev_hash + <span class="str">"|"</span> + canonical(material)).encode()).hexdigest()
+
+prev = GENESIS
+<span class="kw">with</span> open(<span class="str">"signals.csv"</span>) <span class="kw">as</span> f:
+    <span class="kw">for</span> row <span class="kw">in</span> csv.DictReader(f):
+        <span class="com"># Coerce types: int, str, float</span>
+        material = {
+            <span class="str">"id"</span>: int(row[<span class="str">"id"</span>]),
+            <span class="str">"timestamp_emision"</span>: row[<span class="str">"timestamp_emision"</span>],
+            <span class="str">"symbol"</span>: row[<span class="str">"symbol"</span>],
+            <span class="str">"direction"</span>: row[<span class="str">"direction"</span>],
+            <span class="str">"timeframe"</span>: row[<span class="str">"timeframe"</span>],
+            <span class="str">"entry_price"</span>: float(row[<span class="str">"entry_price"</span>]),
+            <span class="str">"stop_loss"</span>:   float(row[<span class="str">"stop_loss"</span>]),
+            <span class="str">"target_1"</span>:    float(row[<span class="str">"target_1"</span>]),
+            <span class="str">"target_2"</span>:    float(row[<span class="str">"target_2"</span>]) <span class="kw">if</span> row[<span class="str">"target_2"</span>] <span class="kw">else None</span>,
+            <span class="str">"target_3"</span>:    float(row[<span class="str">"target_3"</span>]) <span class="kw">if</span> row[<span class="str">"target_3"</span>] <span class="kw">else None</span>,
+            <span class="str">"source"</span>: row[<span class="str">"source"</span>],
+        }
+        expected = row_hash(material, prev)
+        <span class="kw">assert</span> expected == row[<span class="str">"row_hash"</span>], <span class="str">f"Tampering en id={row['id']}"</span>
+        prev = row[<span class="str">"row_hash"</span>]
+
+print(<span class="str">"Chain OK"</span>)</code></pre>
+  </section>
+
+  <section class="vp-section" data-anim="fade-up">
+    <h2>Qué NO está en el hash</h2>
+    <p>
+      Solo los campos materiales (definidos al momento de la emisión) están en la cadena.
+      Los timestamps de TP hits, el estado de cierre, el precio de cierre, etc. son
+      <strong style="color: var(--ink);">transiciones observables verificables</strong> —
+      cualquiera puede consultar el histórico de Binance para confirmar si el precio
+      realmente tocó esos niveles.
+    </p>
+  </section>
+
+  <section class="vp-section" data-stagger>
+    <h2>Descargas</h2>
+    <p>Los archivos canónicos del track record:</p>
+    <div class="vp-actions">
+      <a href="signals.json" class="btn primary">↓ signals.json</a>
+      <a href="signals.csv" class="btn">↓ signals.csv</a>
+      <a href="verify.md" class="btn" download>↓ verify.md</a>
+    </div>
+  </section>
+
+  <div class="vp-genesis" data-anim="reveal-mask">
+    <span class="lbl">Genesis hash</span>
+    <code>0000000000000000000000000000000000000000000000000000000000000000</code>
+  </div>
+
+</main>
+
+<footer class="qb-footer">
+  <div>QUANTUMBLOCK · 2026 · <span data-i18n="footer_legal">Información histórica auditable. No constituye asesoramiento financiero.</span></div>
+  <div class="row gap-16">
+    <a href="index.html" data-i18n="nav_landing">Inicio</a>
+    <a href="track-record.html" data-i18n="nav_track">Track Record</a>
+    <a href="signals.json">JSON</a>
+    <a href="signals.csv">CSV</a>
+  </div>
+</footer>
+
+<script src="app.js?v=3"></script>
+<script src="qb-bg.js?v=3"></script>
+<script src="landing-anim.js?v=3"></script>
+</body>
+</html>
