@@ -63,6 +63,7 @@
       close_reason: s.close_reason || '',
       row_hash: s.row_hash || '0'.repeat(64),
       hold_h,
+      source_label: (s.source || '').toLowerCase() === 'quantumblock_model' ? 'AI/LM' : 'Strategy',
     };
   }
 
@@ -323,7 +324,7 @@
     });
 
     if (!filtered.length) {
-      tbody.innerHTML = `<tr><td colspan="12" class="empty">${t.empty_table}</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="13" class="empty">${t.empty_table}</td></tr>`;
       return;
     }
     tbody.innerHTML = filtered.map(s => {
@@ -334,6 +335,7 @@
       else if (s.status === 'win-partial') { statusCls = 'pos'; statusLbl = 'WIN · TP1'; }
       else { statusCls = 'pos'; statusLbl = s.tp3_hit ? 'WIN · TP3' : 'WIN · TP2'; }
       const pnlCls = s.pnl == null ? 'warn' : (s.pnl >= 0 ? 'pos' : 'neg');
+      const srcCls = s.source_label === 'AI/LM' ? 'src-ai' : 'src-strategy';
       return `
         <tr>
           <td class="num muted">#${String(s.id).padStart(3,'0')}</td>
@@ -345,6 +347,7 @@
           <td class="num"><span class="${s.tp1_hit?'tp-hit':'tp-miss'}">${fmt.px(s.tp1)}</span></td>
           <td class="num"><span class="${s.tp2_hit?'tp-hit':'tp-miss'}">${fmt.px(s.tp2)}</span></td>
           <td class="num"><span class="${s.tp3_hit?'tp-hit':'tp-miss'}">${fmt.px(s.tp3)}</span></td>
+          <td><span class="${srcCls}">${s.source_label}</span></td>
           <td class="${statusCls}" style="font-weight:500;">${statusLbl}</td>
           <td class="num ${pnlCls}">${s.pnl==null?'···':fmt.pct(s.pnl)}</td>
           <td class="hash-cell" title="${s.row_hash}">${fmt.shortHash(s.row_hash)}…</td>
