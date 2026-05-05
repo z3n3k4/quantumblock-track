@@ -143,7 +143,10 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.15s;
   }
+  .chain-block .b-hash:hover { color: var(--green); }
   .chain-link {
     flex: 0 0 auto;
     width: 16px;
@@ -254,7 +257,10 @@
     font-size: 10px;
     color: var(--hash-tone);
     letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: color 0.15s;
   }
+  .trade-card .tc-hash:hover { color: var(--green); }
 
   /* table */
   .table-wrap { overflow-x: auto; }
@@ -288,7 +294,8 @@
   }
   table.qb tbody tr:hover { background: var(--bg-2); }
   table.qb td.muted { color: var(--ink-dim); }
-  table.qb td.hash-cell { font-size: 11px; color: var(--hash-tone); letter-spacing: 0.04em; }
+  table.qb td.hash-cell { font-size: 11px; color: var(--hash-tone); letter-spacing: 0.04em; cursor: pointer; transition: color 0.15s; }
+  table.qb td.hash-cell:hover { color: var(--green); }
   table.qb .tp-hit  { color: var(--green); }
   table.qb .tp-miss { color: var(--ink-faint); opacity: 0.6; }
   .src-ai       { display:inline-block; padding:2px 7px; border-radius:4px; font-size:11px; font-weight:700; background:rgba(38,166,154,.15); color:#26a69a; letter-spacing:.04em; }
@@ -478,6 +485,18 @@
   .reg.tr { top: 6px; right: 6px; }
   .reg.bl { bottom: 6px; left: 6px; }
   .reg.br { bottom: 6px; right: 6px; }
+
+  /* copy-hash toast */
+  #copy-toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(12px);
+    background: var(--green); color: #000; font-family: var(--mono);
+    font-size: 12px; font-weight: 700; letter-spacing: 0.06em;
+    padding: 7px 18px; border-radius: 6px;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.18s, transform 0.18s;
+    z-index: 9999;
+  }
+  #copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
@@ -712,6 +731,8 @@
     </div>
   </div>
 </div>
+
+<div id="copy-toast">✓ Hash copiado</div>
 
 <script src="app.js?v=3"></script>
 <script src="qb-bg.js?v=3"></script>

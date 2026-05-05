@@ -145,7 +145,7 @@
         <div class="chain-block ${cls}" title="#${s.id} ${s.direction} ${s.symbol}">
           <div class="b-id">#${String(s.id).padStart(3,'0')} · ${s.direction.toUpperCase()}</div>
           <div class="b-pnl ${pnlCls}">${pnl}</div>
-          <div class="b-hash">${fmt.shortHash(s.row_hash)}…</div>
+          <div class="b-hash" data-hash="${s.row_hash}" title="${s.row_hash}">${fmt.shortHash(s.row_hash)}…</div>
         </div>
       `);
       if (idx < sorted.length - 1) items.push(`<div class="chain-link"></div>`);
@@ -222,7 +222,7 @@
         </div>
         <div class="tc-right">
           <div class="tc-pnl ${pnlCls}">${pnl}</div>
-          <div class="tc-hash">${fmt.shortHash(s.row_hash)}…</div>
+          <div class="tc-hash" data-hash="${s.row_hash}" title="${s.row_hash}">${fmt.shortHash(s.row_hash)}…</div>
         </div>
       </div>
     `;
@@ -498,6 +498,43 @@
     if (d.type === '__deactivate_edit_mode') panel.classList.remove('open');
   });
   try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch {}
+
+  // -------------- copy-hash on click --------------
+  (function() {
+    const toast = document.getElementById('copy-toast');
+    let toastTimer = null;
+
+    function showToast() {
+      if (!toast) return;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function copyHash(hash) {
+      if (!hash || hash === '0'.repeat(64)) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(hash).then(showToast).catch(() => fallback(hash));
+      } else {
+        fallback(hash);
+      }
+    }
+
+    function fallback(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); showToast(); } catch {}
+      document.body.removeChild(ta);
+    }
+
+    document.addEventListener('click', function(e) {
+      const el = e.target.closest('.hash-cell, .tc-hash, .b-hash');
+      if (!el) return;
+      const hash = el.dataset.hash || el.title || '';
+      if (hash) copyHash(hash);
+    });
+  })();
 
   // boot
   Tweaks.apply();
