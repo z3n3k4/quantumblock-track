@@ -553,26 +553,41 @@
       if (block) navigateToRow(parseInt(block.dataset.id));
     });
 
+    function highlightRow(row) {
+      const tds = row.querySelectorAll('td');
+      // Estado inicial: verde inmediato
+      tds.forEach(td => { td.style.background = 'rgba(60,230,172,0.14)'; td.style.transition = 'none'; });
+      if (tds[0]) tds[0].style.boxShadow = 'inset 4px 0 0 #3ce6ac';
+      // Doble rAF para que el browser pinte el verde antes de iniciar el fade
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        tds.forEach(td => {
+          td.style.transition = 'background 2.5s ease, box-shadow 2.5s ease';
+          td.style.background = '';
+          td.style.boxShadow = '';
+        });
+        setTimeout(() => { tds.forEach(td => { td.style.transition = ''; }); }, 2600);
+      }));
+    }
+
     function navigateToRow(id) {
-      const tbody = document.getElementById('history-body');
-      if (!tbody) return;
-      const row = tbody.querySelector(`tr[data-id="${id}"]`);
-      if (!row) return;
-      // Si hay filtro activo, resetearlo para que la fila sea visible
-      const btnAll = document.querySelector('[data-filter="all"], .filter-btn[data-val="all"]');
-      if (btnAll) btnAll.click();
-      // Scroll suave a la sección de histórico
-      const section = document.getElementById('section-history') ||
-                       row.closest('section') ||
-                       row.closest('.table-wrap') || row;
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // Highlight con delay para que el scroll termine
+      // Resetear filtro a "Todas" si hay uno activo
+      const active = document.querySelector('#filter-row .filter-pill.active');
+      if (active && active.dataset.filter !== 'all') {
+        const btnAll = document.querySelector('#filter-row .filter-pill[data-filter="all"]');
+        if (btnAll) btnAll.click();
+      }
+      // Esperar re-render de la tabla antes de buscar la fila
       setTimeout(() => {
-        tbody.querySelectorAll('tr.row-highlight').forEach(r => r.classList.remove('row-highlight'));
-        void row.offsetWidth;
-        row.classList.add('row-highlight');
-        setTimeout(() => row.classList.remove('row-highlight'), 3000);
-      }, 450);
+        const tbody = document.getElementById('history-body');
+        if (!tbody) return;
+        const row = tbody.querySelector(`tr[data-id="${id}"]`);
+        if (!row) return;
+        // Scroll instantáneo con offset manual — evita conflictos con landing-anim.js
+        const rect = row.getBoundingClientRect();
+        const y = (window.pageYOffset || document.documentElement.scrollTop) + rect.top - 160;
+        window.scrollTo(0, Math.max(0, y));
+        highlightRow(row);
+      }, 80);
     }
   })();
 
