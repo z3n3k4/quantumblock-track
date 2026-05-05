@@ -504,11 +504,13 @@
     let toastTimer = null;
 
     function showToast() {
+      // Locomotive Scroll aplica transform al <body>, lo que rompe position:fixed
+      // dentro de él. Appendar al <html> (documentElement) evita ese problema.
       let t = document.getElementById('copy-toast');
       if (!t) {
         t = document.createElement('div');
         t.id = 'copy-toast';
-        document.body.appendChild(t);
+        document.documentElement.appendChild(t);
       }
       t.textContent = '✓ Hash copiado';
       t.style.cssText = [
@@ -516,7 +518,7 @@
         'transform:translateX(-50%)', 'background:#3ce6ac', 'color:#000',
         'font-size:12px', 'font-weight:700', 'letter-spacing:0.06em',
         'padding:8px 20px', 'border-radius:6px', 'z-index:99999',
-        'pointer-events:none', 'transition:opacity 0.2s',
+        'pointer-events:none', 'transition:opacity 0.3s',
         'box-shadow:0 4px 16px rgba(60,230,172,0.35)', 'opacity:1'
       ].join(';');
       clearTimeout(toastTimer);
@@ -572,22 +574,31 @@
     function navigateToRow(id) {
       // Resetear filtro a "Todas" si hay uno activo
       const active = document.querySelector('#filter-row .filter-pill.active');
-      if (active && active.dataset.filter !== 'all') {
+      const needsReset = active && active.dataset.filter !== 'all';
+      if (needsReset) {
         const btnAll = document.querySelector('#filter-row .filter-pill[data-filter="all"]');
         if (btnAll) btnAll.click();
       }
-      // Esperar re-render de la tabla antes de buscar la fila
+      // Esperar re-render de la tabla (más tiempo si se cambió el filtro)
       setTimeout(() => {
         const tbody = document.getElementById('history-body');
         if (!tbody) return;
         const row = tbody.querySelector(`tr[data-id="${id}"]`);
         if (!row) return;
-        // Scroll instantáneo con offset manual — evita conflictos con landing-anim.js
-        const rect = row.getBoundingClientRect();
-        const y = (window.pageYOffset || document.documentElement.scrollTop) + rect.top - 160;
-        window.scrollTo(0, Math.max(0, y));
-        highlightRow(row);
-      }, 80);
+
+        if (window.__qbScroll && typeof window.__qbScroll.scrollTo === 'function') {
+          // Locomotive Scroll activo — usar su API para no romper el sistema de scroll
+          window.__qbScroll.scrollTo(row, {
+            offset: -160,
+            duration: 800,
+            callback: () => highlightRow(row)
+          });
+        } else {
+          // Fallback nativo
+          row.scrollIntoView({ block: 'center' });
+          highlightRow(row);
+        }
+      }, needsReset ? 150 : 80);
     }
   })();
 
