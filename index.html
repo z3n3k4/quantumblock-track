@@ -842,16 +842,22 @@
 
   // DNA helix mount
   window.QB.mountHelix(document.getElementById('helix-strip'));
-  const sigs = genMockSignals(36);
 
-  // live stats
-  const total = sigs.length;
-  const closed = sigs.filter(s=>s.status!=='open');
-  const wins = closed.filter(s=>s.tp1_hit).length;
-  const wr = closed.length ? (wins/closed.length*100).toFixed(1) : '—';
-  document.getElementById('lv-total').textContent = String(total).padStart(3,'0');
-  document.getElementById('lv-win').textContent = wr + '%';
-  document.getElementById('lv-chain').textContent = String(total + 1);
+  // live stats — datos reales desde signals.json
+  fetch('signals.json?_=' + Date.now())
+    .then(r => r.json())
+    .then(data => {
+      const sigs = (data.signals || []).filter(s => !(s.source || '').endsWith('_test'));
+      const total   = sigs.length;
+      const closed  = sigs.filter(s => !!s.closed_at);
+      const wins    = closed.filter(s => !!s.tp1_hit_at).length;
+      const wr      = closed.length ? (wins / closed.length * 100).toFixed(1) : '0.0';
+      const chained = sigs.filter(s => s.row_hash && s.row_hash !== '0'.repeat(64)).length;
+      document.getElementById('lv-total').textContent = String(total).padStart(3, '0');
+      document.getElementById('lv-win').textContent   = wr + '%';
+      document.getElementById('lv-chain').textContent = String(chained).padStart(3, '0');
+    })
+    .catch(() => {});
 
   // theme/lang
   document.getElementById('theme-toggle').addEventListener('click', () => {
