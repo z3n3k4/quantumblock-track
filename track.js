@@ -142,7 +142,7 @@
       const pnl = s.pnl == null ? '···' : fmt.pct(s.pnl);
       const pnlCls = s.pnl == null ? 'warn' : (s.pnl >= 0 ? 'pos' : 'neg');
       items.push(`
-        <div class="chain-block ${cls}" title="#${s.id} ${s.direction} ${s.symbol}">
+        <div class="chain-block ${cls} chain-block--linked" data-id="${s.id}" title="Ver señal #${String(s.id).padStart(3,'0')} en el histórico">
           <div class="b-id">#${String(s.id).padStart(3,'0')} · ${s.direction.toUpperCase()}</div>
           <div class="b-pnl ${pnlCls}">${pnl}</div>
           <div class="b-hash" data-hash="${s.row_hash}" title="${s.row_hash}">${fmt.shortHash(s.row_hash)}…</div>
@@ -337,7 +337,7 @@
       const pnlCls = s.pnl == null ? 'warn' : (s.pnl >= 0 ? 'pos' : 'neg');
       const srcCls = s.source_label === 'AI/LM' ? 'src-ai' : 'src-strategy';
       return `
-        <tr>
+        <tr data-id="${s.id}">
           <td class="num muted">#${String(s.id).padStart(3,'0')}</td>
           <td class="muted">${fmt.date(s.ts)}</td>
           <td>${s.symbol}</td>
@@ -529,11 +529,39 @@
     }
 
     document.addEventListener('click', function(e) {
-      const el = e.target.closest('.hash-cell, .tc-hash, .b-hash');
-      if (!el) return;
-      const hash = el.dataset.hash || el.title || '';
-      if (hash) copyHash(hash);
+      // Hash copy — prioridad sobre navegación
+      const hashEl = e.target.closest('.hash-cell, .tc-hash, .b-hash');
+      if (hashEl) {
+        const hash = hashEl.dataset.hash || hashEl.title || '';
+        if (hash) copyHash(hash);
+        return;
+      }
+      // Chain block → navegar + highlight fila en tabla
+      const block = e.target.closest('.chain-block--linked[data-id]');
+      if (block) navigateToRow(parseInt(block.dataset.id));
     });
+
+    function navigateToRow(id) {
+      const tbody = document.getElementById('history-body');
+      if (!tbody) return;
+      const row = tbody.querySelector(`tr[data-id="${id}"]`);
+      if (!row) return;
+      // Si hay filtro activo, resetearlo para que la fila sea visible
+      const btnAll = document.querySelector('[data-filter="all"], .filter-btn[data-val="all"]');
+      if (btnAll) btnAll.click();
+      // Scroll suave a la sección de histórico
+      const section = document.getElementById('section-history') ||
+                       row.closest('section') ||
+                       row.closest('.table-wrap') || row;
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Highlight con delay para que el scroll termine
+      setTimeout(() => {
+        tbody.querySelectorAll('tr.row-highlight').forEach(r => r.classList.remove('row-highlight'));
+        void row.offsetWidth;
+        row.classList.add('row-highlight');
+        setTimeout(() => row.classList.remove('row-highlight'), 3000);
+      }, 450);
+    }
   })();
 
   // boot
