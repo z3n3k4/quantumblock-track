@@ -501,14 +501,26 @@
 
   // -------------- copy-hash on click --------------
   (function() {
-    const toast = document.getElementById('copy-toast');
     let toastTimer = null;
 
     function showToast() {
-      if (!toast) return;
-      toast.classList.add('show');
+      let t = document.getElementById('copy-toast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'copy-toast';
+        document.body.appendChild(t);
+      }
+      t.textContent = '✓ Hash copiado';
+      t.style.cssText = [
+        'position:fixed', 'bottom:32px', 'left:50%',
+        'transform:translateX(-50%)', 'background:#3ce6ac', 'color:#000',
+        'font-size:12px', 'font-weight:700', 'letter-spacing:0.06em',
+        'padding:8px 20px', 'border-radius:6px', 'z-index:99999',
+        'pointer-events:none', 'transition:opacity 0.2s',
+        'box-shadow:0 4px 16px rgba(60,230,172,0.35)', 'opacity:1'
+      ].join(';');
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+      toastTimer = setTimeout(() => { t.style.opacity = '0'; }, 1800);
     }
 
     function copyHash(hash) {
