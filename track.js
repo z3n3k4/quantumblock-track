@@ -504,12 +504,14 @@
     let toastTimer = null;
 
     function showToast() {
-      // Locomotive Scroll aplica transform al <body>, lo que rompe position:fixed
-      // dentro de él. Appendar al <html> (documentElement) evita ese problema.
       let t = document.getElementById('copy-toast');
       if (!t) {
         t = document.createElement('div');
         t.id = 'copy-toast';
+      }
+      // Locomotive aplica transform a <body> → position:fixed hijos queda fuera de viewport.
+      // Mover el nodo a <html> (fuera del contenedor transformado) lo fija al viewport.
+      if (t.parentNode !== document.documentElement) {
         document.documentElement.appendChild(t);
       }
       t.textContent = '✓ Hash copiado';
@@ -563,11 +565,11 @@
       // Doble rAF para que el browser pinte el verde antes de iniciar el fade
       requestAnimationFrame(() => requestAnimationFrame(() => {
         tds.forEach(td => {
-          td.style.transition = 'background 2.5s ease, box-shadow 2.5s ease';
+          td.style.transition = 'background 5s ease, box-shadow 5s ease';
           td.style.background = '';
           td.style.boxShadow = '';
         });
-        setTimeout(() => { tds.forEach(td => { td.style.transition = ''; }); }, 2600);
+        setTimeout(() => { tds.forEach(td => { td.style.transition = ''; }); }, 5100);
       }));
     }
 
