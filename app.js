@@ -255,8 +255,25 @@ const Tweaks = (() => {
   function get() { return { ...state }; }
   function onChange(fn) { subs.push(fn); }
 
+  apply();
+
   return { apply, set, get, onChange };
 })();
+
+document.addEventListener('DOMContentLoaded', () => {
+  const themeBtn = document.getElementById('theme-toggle');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
+      Tweaks.set({ theme: Tweaks.get().theme === 'dark' ? 'light' : 'dark' });
+    });
+  }
+  const langBtn = document.getElementById('lang-toggle');
+  if (langBtn) {
+    langBtn.addEventListener('click', () => {
+      Tweaks.set({ lang: Tweaks.get().lang === 'es' ? 'en' : 'es' });
+    });
+  }
+});
 
 /* ============== Mock data (deterministic) ============== */
 function genMockSignals(count = 36) {
