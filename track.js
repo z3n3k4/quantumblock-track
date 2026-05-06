@@ -53,7 +53,9 @@
       direction: s.direction,
       timeframe: s.timeframe,
       entry: s.entry_price,
-      sl: s.stop_loss,
+      sl: s.current_sl || s.stop_loss,
+      sl_original: s.stop_loss,
+      sl_trailed: !!(s.current_sl && s.current_sl !== s.stop_loss),
       tp1: s.target_1,
       tp2: s.target_2,
       tp3: s.target_3,
@@ -213,7 +215,9 @@
             <span class="tc-meta">${s.timeframe} · ${fmt.date(s.ts)} UTC</span>
           </div>
           <div class="tc-bar">
-            <div class="seg ${slcls}">SL · ${fmt.px(s.sl)}</div>
+            ${s.sl_trailed
+              ? `<div class="seg be-active" title="Breakeven — SL original: ${fmt.px(s.sl_original)}">BE · ${fmt.px(s.sl)}</div>`
+              : `<div class="seg ${slcls}">SL · ${fmt.px(s.sl)}</div>`}
             <div class="seg">ENT · ${fmt.px(s.entry)}</div>
             <div class="seg ${tp1cls}">TP1 · ${fmt.px(s.tp1)}</div>
             <div class="seg ${tp2cls}">TP2 · ${fmt.px(s.tp2)}</div>
@@ -343,7 +347,9 @@
           <td>${s.symbol}</td>
           <td><span class="tag ${dirTag}">${s.direction}</span></td>
           <td class="num">${fmt.px(s.entry)}</td>
-          <td class="num neg">${fmt.px(s.sl)}</td>
+          ${s.sl_trailed
+            ? `<td class="num be-cell" title="Breakeven (SL original: ${fmt.px(s.sl_original)})">BE · ${fmt.px(s.sl)}</td>`
+            : `<td class="num neg">${fmt.px(s.sl)}</td>`}
           <td class="num"><span class="${s.tp1_hit?'tp-hit':'tp-miss'}">${fmt.px(s.tp1)}</span></td>
           <td class="num"><span class="${s.tp2_hit?'tp-hit':'tp-miss'}">${fmt.px(s.tp2)}</span></td>
           <td class="num"><span class="${s.tp3_hit?'tp-hit':'tp-miss'}">${fmt.px(s.tp3)}</span></td>
