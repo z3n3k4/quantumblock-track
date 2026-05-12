@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-05-12 00:23 UTC",
+  "generated_at": "2026-05-12 01:38 UTC",
   "metrics": {
-    "total": 7,
-    "open": 0,
+    "total": 8,
+    "open": 1,
     "closed": 7,
     "win_rate_pct": 42.9,
     "tp1_rate_pct": 42.9,
@@ -188,6 +188,31 @@
       "row_hash": "9aa24f523d46585f98b0dbc82ca6c493ad20a942a81a8146276cd400d9ed54d5",
       "pnl_pct": 0.93,
       "status": "Stop tras TP2"
+    },
+    {
+      "id": 8,
+      "timestamp_emision": "2026-05-12T01:37:21Z",
+      "symbol": "BTCUSDT",
+      "direction": "short",
+      "timeframe": "60",
+      "entry_price": 81545.2,
+      "stop_loss": 82128.29,
+      "current_sl": 81463.65,
+      "target_1": 80962.11,
+      "target_2": 80573.39,
+      "target_3": 79990.3,
+      "source": "quantumblock_model",
+      "source_label": "AI/LM",
+      "tp1_hit_at": "2026-05-12T01:38:11Z",
+      "tp2_hit_at": null,
+      "tp3_hit_at": null,
+      "closed_at": null,
+      "close_reason": null,
+      "close_price": null,
+      "prev_hash": "9aa24f523d46585f98b0dbc82ca6c493ad20a942a81a8146276cd400d9ed54d5",
+      "row_hash": "0468aee69d9ef03e4dd281426717baecd27a4b664e02bac82cd01f282fbac6be",
+      "pnl_pct": null,
+      "status": "Abierta"
     }
   ]
 }
