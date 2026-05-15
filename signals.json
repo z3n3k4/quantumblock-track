@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-05-14 17:22 UTC",
+  "generated_at": "2026-05-14 18:21 UTC",
   "metrics": {
-    "total": 15,
+    "total": 16,
     "open": 1,
-    "closed": 14,
-    "win_rate_pct": 71.4,
-    "tp1_rate_pct": 71.4,
-    "tp2_rate_pct": 50.0,
-    "tp3_rate_pct": 35.7,
-    "avg_pnl_pct": 0.63,
+    "closed": 15,
+    "win_rate_pct": 73.3,
+    "tp1_rate_pct": 73.3,
+    "tp2_rate_pct": 46.7,
+    "tp3_rate_pct": 33.3,
+    "avg_pnl_pct": 0.62,
     "best_pct": 2.07,
     "worst_pct": -0.94
   },
@@ -369,14 +369,14 @@
       "tp1_hit_at": "2026-05-14T16:59:21Z",
       "tp2_hit_at": null,
       "tp3_hit_at": null,
-      "closed_at": null,
-      "close_reason": null,
-      "close_price": null,
+      "closed_at": "2026-05-15T02:02:17Z",
+      "close_reason": "sl_after_tp1",
+      "close_price": 81110.01,
       "execution_price": null,
       "prev_hash": "991e99a9d5a37446fc15a68e2866b1380ff6c4a1362da851c4d511b157ec1042",
       "row_hash": "f75b83cbcb4499c759338902f550ad11c5411b6b3fd89927c44ef6da0bb2ccad",
-      "pnl_pct": null,
-      "status": "Abierta"
+      "pnl_pct": 0.52,
+      "status": "Stop tras TP1"
     },
     {
       "id": 15,
@@ -403,6 +403,32 @@
       "row_hash": "10ce4156c0ecb586046fe68a9301ad9eb2ba9d606757c9f9fb4383d1f34d2347",
       "pnl_pct": 0.5,
       "status": "Breakeven (TP1)"
+    },
+    {
+      "id": 16,
+      "timestamp_emision": "2026-05-14T18:21:20Z",
+      "symbol": "BTCUSDT",
+      "direction": "long",
+      "timeframe": "60",
+      "entry_price": 81668.48,
+      "stop_loss": 80903.94,
+      "current_sl": null,
+      "target_1": 82433.0,
+      "target_2": 82942.71,
+      "target_3": 83707.25,
+      "source": "quantumblock_model",
+      "source_label": "AI/LM",
+      "tp1_hit_at": null,
+      "tp2_hit_at": null,
+      "tp3_hit_at": null,
+      "closed_at": null,
+      "close_reason": null,
+      "close_price": null,
+      "execution_price": 81668.48,
+      "prev_hash": "10ce4156c0ecb586046fe68a9301ad9eb2ba9d606757c9f9fb4383d1f34d2347",
+      "row_hash": "43b8ef41dc954be91efb08f20c70403f8684e80f7b44a3411d7fe796cd5fdfce",
+      "pnl_pct": null,
+      "status": "Abierta"
     }
   ]
 }
