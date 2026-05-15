@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-15 13:31 UTC",
+  "generated_at": "2026-05-15 13:39 UTC",
   "metrics": {
     "total": 17,
     "open": 1,
@@ -438,14 +438,14 @@
       "timeframe": "60",
       "entry_price": 80385.11,
       "stop_loss": 81004.16,
-      "current_sl": 80304.72,
+      "current_sl": 79766.0,
       "target_1": 79766.0,
       "target_2": 79353.37,
       "target_3": 78734.32,
       "source": "quantumblock_model",
       "source_label": "AI/LM",
       "tp1_hit_at": "2026-05-15T13:31:23Z",
-      "tp2_hit_at": null,
+      "tp2_hit_at": "2026-05-15T13:39:30Z",
       "tp3_hit_at": null,
       "closed_at": null,
       "close_reason": null,
