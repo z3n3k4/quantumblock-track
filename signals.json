@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-05-23 14:56 UTC",
+  "generated_at": "2026-05-23 20:41 UTC",
   "metrics": {
-    "total": 56,
+    "total": 57,
     "open": 0,
-    "closed": 56,
-    "win_rate_pct": 75.0,
-    "tp1_rate_pct": 75.0,
-    "tp2_rate_pct": 41.1,
-    "tp3_rate_pct": 21.4,
-    "avg_pnl_pct": 0.52,
+    "closed": 57,
+    "win_rate_pct": 75.4,
+    "tp1_rate_pct": 75.4,
+    "tp2_rate_pct": 42.1,
+    "tp3_rate_pct": 21.1,
+    "avg_pnl_pct": 0.53,
     "best_pct": 2.07,
     "worst_pct": -1.67
   },
@@ -1469,6 +1469,32 @@
       "row_hash": "4f630d26f8b3bfa4a13774345563c6f580ebf72a0ec5e4a5b520d9aa3aeefca5",
       "pnl_pct": -1.67,
       "status": "Stop"
+    },
+    {
+      "id": 59,
+      "timestamp_emision": "2026-05-23T20:40:08Z",
+      "symbol": "BTCUSDT",
+      "direction": "long",
+      "timeframe": "60",
+      "entry_price": 75983.45,
+      "stop_loss": 75502.59,
+      "current_sl": 76464.31,
+      "target_1": 76464.31,
+      "target_2": 76784.89,
+      "target_3": 77265.75,
+      "source": "quantumblock_model",
+      "source_label": "AI/LM",
+      "tp1_hit_at": "2026-05-23T20:40:31Z",
+      "tp2_hit_at": "2026-05-23T20:40:31Z",
+      "tp3_hit_at": null,
+      "closed_at": "2026-05-23T20:41:35Z",
+      "close_reason": "expired_after_tp2",
+      "close_price": 76843.3,
+      "execution_price": null,
+      "prev_hash": "4f630d26f8b3bfa4a13774345563c6f580ebf72a0ec5e4a5b520d9aa3aeefca5",
+      "row_hash": "f85171d1fb6e0d24339ce27c2e7d1f8344adb6f05ed68e2720d7170a27c16d83",
+      "pnl_pct": 0.94,
+      "status": "Expirada tras TP2"
     }
   ]
 }
