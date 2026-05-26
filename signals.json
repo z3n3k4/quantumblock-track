@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-26 16:13 UTC",
+  "generated_at": "2026-05-26 17:38 UTC",
   "metrics": {
     "total": 65,
     "open": 1,
@@ -1693,7 +1693,7 @@
       "source": "quantumblock_model",
       "source_label": "AI/LM",
       "tp1_hit_at": "2026-05-26T16:13:34Z",
-      "tp2_hit_at": null,
+      "tp2_hit_at": "2026-05-26T17:38:36Z",
       "tp3_hit_at": null,
       "closed_at": null,
       "close_reason": null,
