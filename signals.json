@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-05-28 15:00 UTC",
+  "generated_at": "2026-05-28 17:45 UTC",
   "metrics": {
     "total": 70,
-    "open": 1,
-    "closed": 69,
-    "win_rate_pct": 79.7,
-    "tp1_rate_pct": 79.7,
-    "tp2_rate_pct": 44.9,
-    "tp3_rate_pct": 20.3,
-    "avg_pnl_pct": 0.57,
+    "open": 0,
+    "closed": 70,
+    "win_rate_pct": 78.6,
+    "tp1_rate_pct": 78.6,
+    "tp2_rate_pct": 44.3,
+    "tp3_rate_pct": 20.0,
+    "avg_pnl_pct": 0.55,
     "best_pct": 2.07,
     "worst_pct": -1.67
   },
@@ -1825,14 +1825,14 @@
       "tp1_hit_at": null,
       "tp2_hit_at": null,
       "tp3_hit_at": null,
-      "closed_at": null,
-      "close_reason": null,
-      "close_price": null,
+      "closed_at": "2026-05-28T17:45:53Z",
+      "close_reason": "sl",
+      "close_price": 73730.03,
       "execution_price": null,
       "prev_hash": "f58432598c5e2d36c900fe347208710a5f6187c7c49a80aaa03eecaa65d0e4db",
       "row_hash": "e2b9ab25b88a34c4f33d72a7ea1be9bf15aa555eee691675efcd564719e86fe7",
-      "pnl_pct": null,
-      "status": "Abierta"
+      "pnl_pct": -1.02,
+      "status": "Stop"
     }
   ]
 }
