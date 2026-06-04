@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-06-04 00:26 UTC",
+  "generated_at": "2026-06-04 01:20 UTC",
   "metrics": {
     "total": 84,
-    "open": 2,
-    "closed": 82,
-    "win_rate_pct": 76.8,
-    "tp1_rate_pct": 76.8,
-    "tp2_rate_pct": 40.2,
-    "tp3_rate_pct": 18.3,
-    "avg_pnl_pct": 0.54,
-    "best_pct": 2.33,
+    "open": 0,
+    "closed": 84,
+    "win_rate_pct": 77.4,
+    "tp1_rate_pct": 77.4,
+    "tp2_rate_pct": 41.7,
+    "tp3_rate_pct": 20.2,
+    "avg_pnl_pct": 0.59,
+    "best_pct": 2.56,
     "worst_pct": -1.67
   },
   "genesis_hash": "0000000000000000000000000000000000000000000000000000000000000000",
@@ -2162,15 +2162,15 @@
       "source_label": "Strategy",
       "tp1_hit_at": "2026-06-03T23:38:28Z",
       "tp2_hit_at": "2026-06-04T00:27:43Z",
-      "tp3_hit_at": null,
-      "closed_at": null,
-      "close_reason": null,
-      "close_price": null,
+      "tp3_hit_at": "2026-06-04T01:19:53Z",
+      "closed_at": "2026-06-04T01:19:53Z",
+      "close_reason": "tp3",
+      "close_price": 62884.41,
       "execution_price": null,
       "prev_hash": "884e5167a97847e759cf4ac763b9ae14388eb7fc9de1cfdc44c04415eceeaa7d",
       "row_hash": "cbccedc029c5cdbf7445168afb76a952c11b807252d03c970e18a62234edb58c",
-      "pnl_pct": null,
-      "status": "Abierta"
+      "pnl_pct": 2.41,
+      "status": "TP3 alcanzado"
     },
     {
       "id": 86,
@@ -2188,15 +2188,15 @@
       "source_label": "Strategy",
       "tp1_hit_at": "2026-06-03T23:11:52Z",
       "tp2_hit_at": "2026-06-04T00:26:40Z",
-      "tp3_hit_at": null,
-      "closed_at": null,
-      "close_reason": null,
-      "close_price": null,
+      "tp3_hit_at": "2026-06-04T01:20:05Z",
+      "closed_at": "2026-06-04T01:20:05Z",
+      "close_reason": "tp3",
+      "close_price": 62972.15,
       "execution_price": null,
       "prev_hash": "cbccedc029c5cdbf7445168afb76a952c11b807252d03c970e18a62234edb58c",
       "row_hash": "19f458a67fab9300609532dd9018a1bf00db87f5376e78049334036f88e82478",
-      "pnl_pct": null,
-      "status": "Abierta"
+      "pnl_pct": 2.56,
+      "status": "TP3 alcanzado"
     }
   ]
 }
