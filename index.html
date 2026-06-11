@@ -1,906 +1,979 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark" data-hash-prom="hero">
+<html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>QuantumBlock — Verifiable BTC signals</title>
-<link rel="stylesheet" href="styles.css?v=4">
-<link rel="stylesheet" href="landing-anim.css?v=3">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QuantumBlock — La IA que siente el mercado</title>
+<meta name="description" content="Pulse, Compass y Foreshock: modelos de IA que escuchan la microestructura de BTC y ETH para detectar eventos antes del movimiento. Track record encadenado y verificable.">
+<meta property="og:title" content="QuantumBlock — La IA que siente el mercado">
+<meta property="og:description" content="El sitio late con BTC en vivo. Señales con track record criptograficamente verificable.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://quantumblock.org">
+<meta name="theme-color" content="#0a0a0a">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=IBM+Plex+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <style>
-  /* Beehiiv embed form — force brutalist look */
-  .bh-form-wrap {
-    background: var(--bg-2);
-    border: 1px solid var(--line);
-    padding: 18px;
-    /* Constrain the wrapper to the form's natural width so it can't show
-       any background to the right of the embed */
-    max-width: 560px;
-    overflow: hidden;
+  :root {
+    --pulse-dur: 3.2s;          /* lo controla la volatilidad REAL de BTC */
+    --bg: #0a0a0a; --border: #262626; --text: #e5e5e5; --muted: #737373;
+    --teal: #3CE6AC; --btc: #F7B731; --red: #ef4444;
+    --font: 'Inter', sans-serif; --mono: 'IBM Plex Mono', monospace;
   }
-  .bh-form-wrap > div:first-child {
-    /* Container the loader injects into */
-    width: 100%;
-    display: flex;
-    justify-content: center;
-  }
-  .bh-form-wrap iframe {
-    width: 100% !important;
-    max-width: 100% !important;
-    min-height: 90px;
-    border: none !important;
-    background: transparent !important;
-    color-scheme: dark;
-    display: block;
-  }
-  /* Beehiiv's loader injects either iframe or web component — best we can do
-     from outside is constrain the wrapper. Inside the iframe, beehiiv styling
-     applies (we can't pierce the cross-origin frame). */
-</style>
-<style>
-  /* ============================================================
-     Landing — page-specific
-     ============================================================ */
-  .reg { position: fixed; width: 14px; height: 14px; pointer-events: none; z-index: 1; }
-  .reg::before, .reg::after { content: ""; position: absolute; background: var(--ink-faint); }
-  .reg::before { left: 0; top: 50%; right: 0; height: 1px; }
-  .reg::after  { top: 0; left: 50%; bottom: 0; width: 1px; }
-  .reg.tl { top: 6px; left: 6px; } .reg.tr { top: 6px; right: 6px; }
-  .reg.bl { bottom: 6px; left: 6px; } .reg.br { bottom: 6px; right: 6px; }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); overflow-x: hidden; }
 
-  /* hero */
-  .hero {
-    padding: 72px 28px 48px;
-    max-width: 1480px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: 60px;
-    align-items: center;
-    border-bottom: 1px solid var(--line);
-  }
-  @media (max-width: 980px) { .hero { grid-template-columns: 1fr; gap: 32px; padding: 40px 20px; } }
-  .hero h1 {
-    font-size: clamp(40px, 6vw, 72px);
-    line-height: 1.0;
-    letter-spacing: -0.025em;
-    font-weight: 400;
-    margin-top: 22px;
-    margin-bottom: 28px;
-  }
-  .hero h1 .accent { color: var(--green); font-weight: 500; }
-  .hero h1 .struck {
-    text-decoration: line-through;
-    text-decoration-color: var(--red);
-    text-decoration-thickness: 2px;
-    color: var(--ink-dim);
-    font-style: italic;
-    font-weight: 300;
-  }
-  .hero p.sub {
-    font-size: 16px;
-    color: var(--ink-dim);
-    line-height: 1.65;
-    max-width: 640px;
-    margin: 0 0 36px;
-    font-family: "IBM Plex Sans", sans-serif;
-    letter-spacing: -0.005em;
-  }
-  .hero .cta-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  #sea { position: fixed; inset: 0; z-index: 0; }
 
-  /* hero block diagram */
-  .hero-art {
-    border: 1px solid var(--line);
-    background: var(--bg-1);
-    padding: 24px;
-    position: relative;
-    font-size: 11px;
-    overflow: hidden;
-  }
-  .hero-art::before {
-    content: "";
-    position: absolute; inset: 0;
-    background-image:
-      linear-gradient(to right, var(--grid) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
-    background-size: 16px 16px;
-    pointer-events: none;
-    opacity: 0.6;
-  }
-  .hero-art .art-head {
-    display: flex; justify-content: space-between;
-    color: var(--ink-faint);
-    text-transform: uppercase; letter-spacing: 0.12em;
-    font-size: 10px;
-    margin-bottom: 18px;
-    position: relative;
-  }
-  .hero-art .h-chain { display: flex; align-items: center; position: relative; }
-  .hero-art .h-block {
-    flex: 1;
-    border: 1px solid var(--line-2);
-    background: var(--bg);
-    padding: 12px 12px;
-    height: 86px;
-    display: flex; flex-direction: column; justify-content: space-between;
-    position: relative;
-  }
-  .hero-art .h-block + .h-block { margin-left: 10px; }
-  .hero-art .h-block.win  { border-left: 3px solid var(--green); }
-  .hero-art .h-block.loss { border-left: 3px solid var(--red); }
-  .hero-art .h-block.open { border-left: 3px solid var(--amber); }
-  .hero-art .h-id { font-size: 9px; color: var(--ink-faint); letter-spacing: 0.1em; }
-  .hero-art .h-pct {
-    font-size: 18px; letter-spacing: -0.02em;
-    font-variant-numeric: tabular-nums;
-  }
-  .hero-art .h-hash {
-    font-size: 9px; color: var(--hash-tone);
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .hero-art .h-arrow {
-    width: 10px; height: 1px; background: var(--ink-faint); flex: 0 0 auto;
-    margin: 0 -1px;
-  }
-  .hero-art .ascii-art {
-    font-family: "JetBrains Mono", monospace;
-    color: var(--ink-faint);
-    font-size: 11px;
-    margin-top: 18px;
-    line-height: 1.4;
-    white-space: pre;
-    overflow-x: auto;
-    position: relative;
+  .hero { position: relative; z-index: 1; height: 100vh; display: flex;
+          flex-direction: column; justify-content: center; align-items: center; }
+
+  /* ── nav minima ── */
+  .nav { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center;
+         gap: 14px; padding: 22px 38px; }
+  .nav .badge { background: var(--teal); color: #0a0a0a; font-weight: 800; font-size: 13px;
+                padding: 4px 9px; border-radius: 4px; letter-spacing: 1px; }
+  .nav .links { margin-left: auto; display: flex; gap: 30px; font-size: 11px; font-weight: 600;
+                letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .nav .links span { cursor: pointer; transition: color .25s; }
+  .nav .links span:hover { color: var(--teal); }
+
+  /* ── titulo masivo ── */
+  .mega { font-weight: 900; font-size: clamp(54px, 9.5vw, 150px); letter-spacing: -0.02em;
+          line-height: .95; text-align: center; user-select: none; }
+  .mega .ch { display: inline-block; opacity: 0; transform: translateY(60px); }
+  .mega .qb { background: linear-gradient(180deg, #fff 30%, var(--teal) 130%);
+              -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .tagline { margin-top: 18px; font-size: clamp(12px, 1.4vw, 16px); color: var(--muted);
+             letter-spacing: .3em; text-transform: uppercase; font-weight: 600; opacity: 0; }
+  .tagline b { color: var(--teal); font-weight: 600; }
+
+  /* ── HUD de mercado vivo ── */
+  .hud { margin-top: 46px; display: flex; gap: 34px; align-items: center; opacity: 0;
+         background: rgba(13,13,13,.72); border: 1px solid var(--border); border-radius: 8px;
+         padding: 16px 28px; backdrop-filter: blur(6px); }
+  .hud .price { font-family: var(--mono); font-size: clamp(26px, 3.4vw, 42px); font-weight: 600;
+                color: var(--btc); transition: color .18s;
+                animation: beat var(--pulse-dur) ease-in-out infinite; }
+  .hud .price.up { color: var(--teal); } .hud .price.down { color: var(--red); }
+  .hud .col { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .hud .col b { display: block; font-size: 15px; color: var(--text); font-weight: 600; margin-top: 2px; }
+  .hud .chg.pos { color: var(--teal); } .hud .chg.neg { color: var(--red); }
+  .live { display: flex; align-items: center; gap: 7px; font-size: 10px; font-weight: 700;
+          letter-spacing: .16em; color: var(--teal); font-family: var(--font); }
+  .live .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal);
+               animation: lp 2s ease-in-out infinite; }
+  .live.off { color: var(--muted); } .live.off .dot { background: var(--muted); animation: none; }
+  @keyframes lp { 0%,100% { box-shadow: 0 0 0 0 rgba(60,230,172,.5); } 50% { box-shadow: 0 0 0 6px rgba(60,230,172,0); } }
+  @keyframes beat {
+    0%,100% { transform: scale(1); filter: brightness(1); }
+    8%      { transform: scale(1.03); filter: brightness(1.25); }
+    16%     { transform: scale(1); }
+    24%     { transform: scale(1.015); filter: brightness(1.1); }
+    32%     { transform: scale(1); }
   }
 
-  /* live stat strip */
-  .live-strip {
-    border-bottom: 1px solid var(--line);
-    background: var(--bg-1);
-    padding: 0;
-  }
-  .live-strip .inner {
-    max-width: 1480px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr repeat(4, auto);
-    gap: 0;
-    align-items: stretch;
-  }
-  .live-strip .label {
-    padding: 22px 28px;
-    font-size: 10px; color: var(--green);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    border-right: 1px solid var(--line);
-    display: flex; align-items: center; gap: 10px;
-  }
-  .live-strip .label .blink { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 1.6s infinite; }
-  .live-strip .stat {
-    padding: 18px 28px;
-    border-right: 1px solid var(--line);
-    text-align: right;
-  }
-  .live-strip .stat:last-child { border-right: none; }
-  .live-strip .stat .v {
-    font-size: 22px; font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em; color: var(--ink);
-  }
-  .live-strip .stat .l {
-    font-size: 10px; color: var(--ink-faint);
-    text-transform: uppercase; letter-spacing: 0.12em;
-    margin-top: 4px;
+  /* ── needle de marca (abajo del hero) ── */
+  .needle-strip { position: absolute; bottom: 0; left: 0; right: 0; padding: 10px 38px 14px;
+                  border-top: 1px solid var(--border); background: rgba(10,10,10,.55);
+                  backdrop-filter: blur(4px); opacity: 0; }
+  .needle-strip .lbl { display: flex; justify-content: space-between; font-size: 9px;
+                       font-weight: 600; letter-spacing: .16em; text-transform: uppercase;
+                       color: #525252; margin-bottom: 4px; }
+  #needle { width: 100%; height: 52px; display: block; }
+
+  .scroll-hint { position: absolute; bottom: 92px; left: 50%; transform: translateX(-50%);
+                 color: #525252; font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+                 opacity: 0; animation: hint 2.4s ease-in-out 3s infinite; }
+  @keyframes hint { 0%,100% { transform: translate(-50%,0); opacity:.55; } 50% { transform: translate(-50%,7px); opacity:.9; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hud .price, .live .dot, .scroll-hint { animation: none !important; }
   }
 
-  /* sections */
-  section.land {
-    max-width: 1480px;
-    margin: 0 auto;
-    padding: 80px 28px;
-    border-bottom: 1px solid var(--line);
-  }
-  section.land h2.serif {
-    font-family: "IBM Plex Sans", sans-serif;
-    font-size: clamp(28px, 4vw, 48px);
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    font-weight: 400;
-    max-width: 800px;
-    margin-top: 14px;
-  }
+  /* ════════ MUNDOS (acento por producto via --acc) ════════ */
+  html { scroll-behavior: smooth; }
+  .world { position: relative; z-index: 1; --acc: #FFB02E; }
+  .world.pulse { --acc: #3CE6AC; }
+  .world.compass { --acc: #22c55e; }
+  .world.track { --acc: #3CE6AC; }
+  .world-head { min-height: 62vh; display: flex; flex-direction: column;
+                justify-content: center; align-items: center; text-align: center;
+                padding: 80px 24px 30px; }
+  .world-head .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .3em;
+                         text-transform: uppercase; color: var(--acc); margin-bottom: 18px; }
+  .world-head .wtitle { font-weight: 900; font-size: clamp(44px, 7.5vw, 110px);
+                        letter-spacing: -0.02em; line-height: .95;
+                        background: linear-gradient(180deg, #fff 25%, var(--acc) 140%);
+                        -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .world-head .wsub { margin-top: 16px; font-size: clamp(13px, 1.6vw, 18px);
+                      color: var(--muted); max-width: 640px; line-height: 1.6; }
+  .world-head .wsub b { color: var(--acc); }
+  .badge-shadow { margin-top: 22px; display: inline-flex; align-items: center; gap: 8px;
+                  border: 1px solid color-mix(in srgb, var(--acc) 40%, transparent);
+                  color: var(--acc); font-size: 10px;
+                  font-weight: 700; letter-spacing: .18em; padding: 6px 14px; border-radius: 4px;
+                  background: color-mix(in srgb, var(--acc) 8%, transparent); }
+  .badge-shadow .bdot { width: 6px; height: 6px; border-radius: 50%; background: var(--acc);
+                        animation: lp 2s ease-in-out infinite; }
+  .beat .num { color: var(--acc) !important; }
+  .stat .v { color: var(--acc) !important; }
+  .wcta .btn { background: var(--acc); }
+  .wcta .btn:hover { box-shadow: 0 8px 34px color-mix(in srgb, var(--acc) 35%, transparent); }
 
-  /* how it works */
-  .how-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0;
-    margin-top: 56px;
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-  }
-  @media (max-width: 900px) { .how-grid { grid-template-columns: 1fr; } }
-  .how-step {
-    padding: 32px 28px;
-    border-right: 1px solid var(--line);
-    position: relative;
-  }
-  .how-step:last-child { border-right: none; }
-  @media (max-width: 900px) {
-    .how-step { border-right: none; border-bottom: 1px solid var(--line); }
-    .how-step:last-child { border-bottom: none; }
-  }
-  .how-step .step-num {
-    color: var(--green); font-size: 11px;
-    letter-spacing: 0.16em; text-transform: uppercase; font-weight: 500;
-  }
-  .how-step h3.s {
-    font-family: "IBM Plex Sans", sans-serif;
-    font-size: 22px; letter-spacing: -0.01em;
-    margin: 14px 0 12px; color: var(--ink); font-weight: 400;
-    text-transform: none;
-  }
-  .how-step p {
-    color: var(--ink-dim); font-size: 13px;
-    line-height: 1.7; margin: 0;
-    font-family: "IBM Plex Sans", sans-serif;
-  }
-  .how-step .vis {
-    margin-top: 24px;
-    height: 88px;
-    border: 1px solid var(--line);
-    background: var(--bg-1);
-    padding: 12px;
-    font-size: 10px;
-    color: var(--hash-tone);
-    overflow: hidden;
-    line-height: 1.5;
-    position: relative;
-    font-family: "JetBrains Mono", monospace;
-  }
-  .how-step .vis .lbl {
-    position: absolute; top: 8px; right: 10px;
-    font-size: 9px; color: var(--ink-faint);
-    letter-spacing: 0.1em; text-transform: uppercase;
-  }
+  /* radar Pulse */
+  .pulse-flex { display: flex; gap: 30px; align-items: center; justify-content: center;
+                flex-wrap: wrap; padding: 0 24px; }
+  #radar { width: min(440px, 88vw); height: min(440px, 88vw); display: block;
+           background: rgba(13,13,13,.78); border: 1px solid var(--border);
+           border-radius: 50%; backdrop-filter: blur(5px); }
+  .pulse-feats { max-width: 360px; display: flex; flex-direction: column; gap: 18px; }
+  .pfeat { border-left: 2px solid var(--acc); padding-left: 16px; opacity: 0; transform: translateX(24px); }
+  .pfeat h4 { font-size: 15px; font-weight: 800; margin-bottom: 4px; }
+  .pfeat p { font-size: 12px; color: var(--muted); line-height: 1.6; }
 
-  /* anatomy */
-  .anatomy {
-    margin-top: 48px;
-    border: 1px solid var(--line);
-    background: var(--bg-1);
-    padding: 0;
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-  }
-  @media (max-width: 980px) { .anatomy { grid-template-columns: 1fr; } }
-  .anatomy-left {
-    padding: 28px;
-    border-right: 1px solid var(--line);
-    background: var(--bg);
-    position: relative;
-  }
-  @media (max-width: 980px) { .anatomy-left { border-right: none; border-bottom: 1px solid var(--line); } }
-  .anatomy-left .signal-card {
-    border: 1px solid var(--line-2);
-    background: var(--bg-1);
-    padding: 0;
-    font-size: 12px;
-  }
-  .anatomy-left .sc-row {
-    display: flex; justify-content: space-between;
-    padding: 8px 14px;
-    border-bottom: 1px dotted var(--line);
-  }
-  .anatomy-left .sc-row:last-child { border-bottom: none; }
-  .anatomy-left .sc-row .k {
-    color: var(--ink-faint);
-    text-transform: uppercase; letter-spacing: 0.08em;
-    font-size: 11px;
-  }
-  .anatomy-left .sc-row .v { font-variant-numeric: tabular-nums; color: var(--ink); }
-  .anatomy-left .sc-head {
-    padding: 14px;
-    border-bottom: 1px solid var(--line);
-    display: flex; justify-content: space-between; align-items: center;
-    background: var(--bg-2);
-  }
-  .anatomy-left .sc-head b { font-weight: 500; letter-spacing: 0.05em; }
-  .anatomy-left .sc-foot {
-    padding: 12px 14px;
-    border-top: 1px solid var(--line);
-    background: var(--bg-2);
-    font-size: 10px;
-    color: var(--hash-tone);
-    word-break: break-all;
-  }
-  .anatomy-right {
-    padding: 28px;
-    display: flex; flex-direction: column; gap: 14px;
-  }
-  .anatomy-right .field {
-    display: grid; grid-template-columns: 110px 1fr; gap: 16px;
-    padding: 8px 0;
-    border-bottom: 1px dotted var(--line);
-    font-size: 12px;
-    align-items: center;
-  }
-  .anatomy-right .field:last-child { border-bottom: none; }
-  .anatomy-right .field .fk {
-    font-size: 11px;
-    color: var(--green);
-    letter-spacing: 0.06em;
-  }
-  .anatomy-right .field .fd {
-    color: var(--ink-dim);
-    font-family: "IBM Plex Sans", sans-serif;
-    font-size: 13px;
-    line-height: 1.5;
-  }
-  .anatomy-right .field .pill {
-    display: inline-block; margin-left: 8px;
-    font-size: 9px; padding: 1px 6px;
-    border: 1px solid var(--line-2);
-    color: var(--ink-faint);
-    letter-spacing: 0.1em;
-    font-family: "JetBrains Mono", monospace;
-  }
+  /* track record */
+  .chain-wrap { display: flex; gap: 0; align-items: center; justify-content: center;
+                flex-wrap: wrap; padding: 10px 24px 30px; }
+  .blk { background: rgba(13,13,13,.85); border: 1px solid var(--border); border-radius: 6px;
+         padding: 13px 15px; font-family: var(--mono); opacity: 0; transform: translateY(20px); }
+  .blk .bh { font-size: 9px; color: #525252; }
+  .blk .bv { font-size: 11px; color: var(--acc); margin-top: 3px; }
+  .blk .bd { font-size: 10px; color: var(--muted); margin-top: 5px; }
+  .blk-link { width: 30px; height: 2px; background: var(--acc); opacity: 0; transform: scaleX(0); }
+  .tr-table { max-width: 760px; margin: 0 auto; padding: 0 24px 10px; }
+  .tr-row { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1.2fr; gap: 10px;
+            align-items: center; padding: 9px 12px; border-bottom: 1px solid #1c1c1c;
+            font-family: var(--mono); font-size: 11.5px; color: #a3a3a3; opacity: 0; }
+  .tr-row.hdr { color: #525252; font-family: var(--font); font-size: 9.5px; font-weight: 600;
+                letter-spacing: .12em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+  .pnl-bar { height: 4px; background: #1c1c1c; border-radius: 2px; overflow: hidden; }
+  .pnl-bar i { display: block; height: 100%; width: 0; border-radius: 2px; }
+  .pill { font-family: var(--font); font-size: 9px; font-weight: 700; letter-spacing: .1em;
+          text-transform: uppercase; padding: 2px 8px; border-radius: 3px; justify-self: start; }
+  .pill.tp { color: #3CE6AC; background: rgba(60,230,172,.1); }
+  .pill.sl { color: #ef4444; background: rgba(239,68,68,.1); }
 
-  /* why grid */
-  .why-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    margin-top: 48px;
-    border-top: 1px solid var(--line);
-  }
-  @media (max-width: 900px) { .why-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 540px) { .why-grid { grid-template-columns: 1fr; } }
-  .why-cell {
-    padding: 28px 24px;
-    border-right: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-    position: relative;
-  }
-  .why-cell:nth-child(4n) { border-right: none; }
-  .why-cell .num {
-    font-size: 11px; color: var(--green);
-    letter-spacing: 0.12em; text-transform: uppercase;
-  }
-  .why-cell h4 {
-    font-family: "IBM Plex Sans", sans-serif;
-    font-size: 17px; font-weight: 500;
-    margin: 12px 0 8px;
-    letter-spacing: -0.005em;
-  }
-  .why-cell p {
-    color: var(--ink-dim);
-    font-size: 12px; line-height: 1.6;
-    margin: 0;
-    font-family: "IBM Plex Sans", sans-serif;
-  }
+  /* escena pinned scrubbed */
+  .scene { position: relative; height: 100vh; display: flex; align-items: center;
+           justify-content: center; }
+  .scene-inner { position: relative; width: min(1240px, 94vw); }
+  #seismo-scene { width: 100%; height: clamp(340px, 56vh, 540px); display: block;
+                  background: rgba(13,13,13,.78); border: 1px solid var(--border);
+                  border-radius: 8px; backdrop-filter: blur(5px); }
+  .beat { position: absolute; left: 36px; top: 30px; max-width: 380px; opacity: 0; }
+  .beat .num { font-family: var(--mono); font-size: 11px; color: #FFB02E; letter-spacing: .2em; }
+  .beat h3 { font-size: clamp(20px, 2.4vw, 30px); font-weight: 800; margin: 6px 0 8px; }
+  .beat p { font-size: 13px; color: var(--muted); line-height: 1.65; }
 
-  .why-quote {
-    margin-top: 56px;
-    padding: 36px;
-    border: 1px solid var(--line);
-    background: var(--bg-1);
-    position: relative;
-    font-family: "IBM Plex Sans", sans-serif;
-    font-size: 22px;
-    line-height: 1.4;
-    color: var(--ink);
-    letter-spacing: -0.01em;
-    max-width: 920px;
-  }
-  .why-quote::before {
-    content: "\""; position: absolute; top: 4px; left: 18px;
-    font-family: "JetBrains Mono", monospace;
-    font-size: 80px; line-height: 1; color: var(--green); opacity: 0.3;
-  }
-  .why-quote::after {
-    content: "// don't trust — check"; position: absolute; bottom: 12px; right: 20px;
-    font-family: "JetBrains Mono", monospace;
-    font-size: 11px; color: var(--ink-faint);
-    letter-spacing: 0.06em; text-transform: uppercase;
-  }
-  .why-quote span.k { color: var(--green); }
-
-  /* pricing */
-  .pricing-card {
-    margin-top: 48px;
-    border: 1px solid var(--line);
-    background: var(--bg-1);
-    padding: 0;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-  @media (max-width: 900px) { .pricing-card { grid-template-columns: 1fr; } }
-  .pricing-card .pc-left {
-    padding: 36px;
-    border-right: 1px solid var(--line);
-  }
-  @media (max-width: 900px) { .pricing-card .pc-left { border-right: none; border-bottom: 1px solid var(--line); } }
-  .pricing-card .pc-right {
-    padding: 36px;
-    background:
-      radial-gradient(circle at 100% 0%, var(--green-bg), transparent 60%),
-      var(--bg-1);
-  }
-  .pricing-card h3.p {
-    font-family: "IBM Plex Sans", sans-serif;
-    font-size: 28px; font-weight: 400; margin: 16px 0;
-    letter-spacing: -0.015em;
-    color: var(--ink); text-transform: none;
-  }
-  .pricing-card p.s {
-    color: var(--ink-dim);
-    font-family: "IBM Plex Sans", sans-serif;
-    font-size: 14px; line-height: 1.6;
-  }
-  .pricing-form {
-    display: flex; flex-direction: column; gap: 14px;
-  }
-  .pricing-form input {
-    background: var(--bg);
-    border: 1px solid var(--line-2);
-    color: var(--ink);
-    padding: 14px 16px;
-    font-family: inherit;
-    font-size: 13px;
-  }
-  .pricing-form input:focus { outline: none; border-color: var(--green); }
-  .pricing-form input::placeholder { color: var(--ink-faint); }
-  .pricing-form .pf-row { display: flex; gap: 8px; align-items: stretch; }
-  .pricing-form .pf-row input { flex: 1; }
-  .pricing-form .note {
-    font-size: 11px; color: var(--ink-faint);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .feature-list { list-style: none; margin: 24px 0 0; padding: 0; }
-  .feature-list li {
-    padding: 8px 0;
-    border-bottom: 1px dotted var(--line);
-    color: var(--ink-dim);
-    font-size: 12px;
-    display: flex; gap: 10px; align-items: center;
-    font-family: "IBM Plex Sans", sans-serif;
-  }
-  .feature-list li::before {
-    content: "[✓]"; color: var(--green);
-    font-family: "JetBrains Mono", monospace;
-    font-size: 11px;
-    flex: 0 0 auto;
-  }
-
-  /* tweaks panel reuse */
-  .qb-tweaks {
-    position: fixed; bottom: 24px; right: 24px;
-    width: 280px; background: var(--bg-1);
-    border: 1px solid var(--line-2); z-index: 100;
-    font-size: 11px; box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    display: none;
-  }
-  .qb-tweaks.open { display: block; }
-  .qb-tweaks .t-head {
-    padding: 10px 14px; border-bottom: 1px solid var(--line);
-    display: flex; justify-content: space-between; align-items: center;
-    text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-dim);
-  }
-  .qb-tweaks .t-head button {
-    background: transparent; border: none; color: var(--ink-faint);
-    cursor: pointer; font-family: inherit; font-size: 14px;
-  }
-  .qb-tweaks .t-body { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
-  .qb-tweaks .t-row { display: flex; flex-direction: column; gap: 6px; }
-  .qb-tweaks .t-lbl { font-size: 10px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.1em; }
-  .qb-tweaks .seg { display: flex; border: 1px solid var(--line-2); }
-  .qb-tweaks .seg button {
-    flex: 1; padding: 6px 8px; background: transparent;
-    border: none; border-right: 1px solid var(--line-2);
-    color: var(--ink-dim); font-family: inherit; font-size: 10px;
-    text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer;
-  }
-  .qb-tweaks .seg button:last-child { border-right: none; }
-  .qb-tweaks .seg button.active { background: var(--green); color: var(--bg); }
+  /* stats + cta */
+  .wstats { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+            padding: 60px 24px 20px; }
+  .stat { background: rgba(13,13,13,.82); border: 1px solid var(--border); border-radius: 8px;
+          padding: 26px 34px; text-align: center; min-width: 230px; backdrop-filter: blur(5px); }
+  .stat .v { font-family: var(--mono); font-size: clamp(34px, 4vw, 52px); font-weight: 600;
+             color: #FFB02E; }
+  .stat .v small { font-size: .45em; color: var(--muted); }
+  .stat .l { font-size: 10px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase;
+             color: var(--muted); margin-top: 8px; }
+  .wnote { text-align: center; font-size: 10.5px; color: #525252; padding: 4px 24px 30px; }
+  .wcta { text-align: center; padding: 10px 24px 110px; }
+  .wcta .btn { display: inline-block; background: #FFB02E; color: #0a0a0a; font-weight: 800;
+               font-size: 13px; letter-spacing: .08em; padding: 15px 34px; border-radius: 6px;
+               cursor: pointer; transition: transform .2s, box-shadow .2s; position: relative; }
+  .wcta .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 34px rgba(255,176,46,.35); }
 </style>
 </head>
 <body>
+<canvas id="sea"></canvas>
 
-<div class="reg tl"></div>
-<div class="reg tr"></div>
-
-<div class="qb-bar">
-  <a href="index.html" class="brand">
-    <span class="mark"></span>
-    <b>QUANTUMBLOCK</b>
-  </a>
-  <nav>
-    <a href="index.html" class="active" data-i18n="nav_landing">Inicio</a>
-    <a href="track-record.html" data-i18n="nav_track">Track Record</a>
-    <a href="verify.html" data-i18n="nav_verify">Verificar</a>
-    <button class="nav-btn" id="theme-toggle">◐</button>
-  </nav>
-</div>
-
-<div class="hash-marquee" id="helix-strip" aria-hidden="true">
-  <div class="helix-label">// CHAIN.<b>HELIX</b> · sha256 · genesis → tip</div>
-</div>
-
-<!-- HERO -->
 <section class="hero">
-  <div>
-    <div class="kicker" data-i18n="hero_kicker">Señales BTC · Track record verificable</div>
-    <h1 class="serif">
-      <span data-i18n="hero_title_part1" class="glitch" data-text="Operamos.">Operamos.</span><br>
-      <span class="struck" data-i18n="hero_title_part2">No te pedimos confianza.</span><br>
-      <span class="accent" data-i18n="hero_title_part3">Lo grabamos en piedra criptográfica.</span>
-    </h1>
-    <p class="sub" data-i18n="hero_sub">QuantumBlock publica señales de BTC con entry, SL y tres targets escalonados — y las encadena con SHA256. Cada bloque referencia al anterior. Si tocamos historia, se rompe la cadena. Cualquiera puede verificarlo.</p>
-    <div class="cta-row">
-      <a href="track-record.html" class="btn primary" data-i18n="hero_cta">Ver track record</a>
-      <a href="verify.html" class="btn" data-i18n="hero_cta2">Cómo verificar</a>
-    </div>
-  </div>
-  <div class="hero-art scanlines">
-    <div class="art-head">
-      <span>// chain.preview</span>
-      <span>BTCUSDT · 4H</span>
-    </div>
-    <div class="h-chain">
-      <div class="h-block win"><div class="h-id">#017 · LONG</div><div class="h-pct pos">+4.21%</div><div class="h-hash">a9b2c4…f13</div></div>
-      <div class="h-arrow"></div>
-      <div class="h-block loss"><div class="h-id">#018 · SHORT</div><div class="h-pct neg">−1.84%</div><div class="h-hash">e0d7a1…2c8</div></div>
-      <div class="h-arrow"></div>
-      <div class="h-block win"><div class="h-id">#019 · LONG</div><div class="h-pct pos">+6.07%</div><div class="h-hash">3b91fc…b07</div></div>
-      <div class="h-arrow"></div>
-      <div class="h-block open"><div class="h-id">#020 · LONG</div><div class="h-pct warn">···</div><div class="h-hash">7f5e2d…aa1</div></div>
-    </div>
-    <div class="ascii-art">
-   prev_hash ──┐
-              SHA256( prev_hash | id | ts | symbol | dir | 
-                       entry | sl | tp1 | tp2 | tp3 )
-                       │
-                       └──> row_hash ──> next block
+  <nav class="nav">
+    <span class="badge">QB</span>
+    <div class="links"><span>Pulse</span><span>Compass</span><span onclick="document.getElementById('foreshock').scrollIntoView()">Foreshock</span><span>Track Record</span></div>
+  </nav>
 
-   tamper any field   →   row_hash mismatch   →   chain breaks
+  <h1 class="mega" id="mega"></h1>
+  <div class="tagline" id="tag">La IA que <b>siente</b> el mercado antes del movimiento</div>
+
+  <div class="hud" id="hud">
+    <div>
+      <div class="live" id="live"><span class="dot"></span><span id="livetxt">CONECTANDO</span></div>
+      <div class="price" id="price">—</div>
     </div>
+    <div class="col">24H<b><span class="chg" id="chg">—</span></b></div>
+    <div class="col">VOLATILIDAD VIVA<b id="vol">—</b></div>
+    <div class="col">EL SITIO LATE CON<b style="color:var(--btc)">BTC REAL</b></div>
+  </div>
+
+  <div class="scroll-hint" id="hint">desliza — pulse · compass · foreshock</div>
+
+  <div class="needle-strip" id="nstrip">
+    <div class="lbl"><span>Market needle — vibracion en tiempo real</span><span>amplitud = volatilidad btc en vivo</span></div>
+    <canvas id="needle"></canvas>
   </div>
 </section>
 
-<!-- LIVE STATS -->
-<section class="live-strip">
-  <div class="inner">
-    <div class="label"><span class="blink"></span><span data-i18n="live_label">LIVE STATS · public chain</span></div>
-    <div class="stat"><div class="v" id="lv-total">—</div><div class="l" data-i18n="live_total">Signals</div></div>
-    <div class="stat"><div class="v" id="lv-win">—</div><div class="l" data-i18n="metric_win">Win rate</div></div>
-    <div class="stat"><div class="v" id="lv-chain">—</div><div class="l" data-i18n="live_chain">Chained blocks</div></div>
-    <div class="stat"><div class="v">100.00<span class="muted" style="font-size:14px;">%</span></div><div class="l" data-i18n="live_uptime">Chain uptime</div></div>
+<!-- ════════ MUNDO PULSE ════════ -->
+<section class="world pulse" id="pulse">
+  <div class="world-head">
+    <div class="eyebrow">El radar</div>
+    <div class="wtitle">PULSE</div>
+    <div class="wsub">Mientras duermes, Pulse escucha. Un motor de alertas que escanea la
+      microestructura de <b>BTC y ETH cada hora</b>, buscando los eventos de volatilidad
+      que el ojo humano no alcanza a ver.</div>
+    <div class="badge-shadow"><span class="bdot"></span>OPERATIVO — BTC · ETH</div>
   </div>
+  <div class="pulse-flex">
+    <canvas id="radar"></canvas>
+    <div class="pulse-feats">
+      <div class="pfeat"><h4>Escucha continua</h4>
+        <p>Decenas de canales de mercado — liquidaciones, open interest, funding, flujo
+           agresor — consolidados en una sola probabilidad de evento.</p></div>
+      <div class="pfeat"><h4>Solo lo que importa</h4>
+        <p>Los eventos fuertes son ~3% del tiempo. Pulse calla el 97% restante:
+           cuando habla, es porque algo se esta gestando.</p></div>
+      <div class="pfeat"><h4>Doble umbral</h4>
+        <p>Alerta estandar y escalacion critica: dos niveles de confianza para que
+           sepas cuanto peso darle a cada ping.</p></div>
+    </div>
+  </div>
+  <div class="wcta" style="padding-top:50px"><span class="btn" onclick="document.getElementById('waitlist').scrollIntoView()">RECIBE LAS ALERTAS</span></div>
 </section>
 
-<!-- HOW IT WORKS -->
-<section class="land">
-  <div class="kicker" data-i18n="how_kicker">Cómo funciona</div>
-  <h2 class="serif" data-i18n="how_title">Tres pasos. Cero opacidad.</h2>
-  <div class="how-grid">
-    <div class="how-step">
-      <div class="step-num" data-i18n="how_1_t">01 · Señal</div>
-      <h3 class="s" data-i18n="how_1_t_h">Detección y publicación</h3>
-      <p data-i18n="how_1_d">Detectamos un setup. Publicamos entry, stop loss y tres targets escalonados (TP1 / TP2 / TP3). Timestamp UTC al segundo.</p>
-      <div class="vis">
-        <span class="lbl">SIGNAL #042</span>
-<pre style="margin:0; color: var(--ink-dim); font-size: 10px;">  symbol     BTCUSDT
-  dir        LONG
-  entry      62 410.50
-  sl         61 220.00  (-1.91%)
-  tp1/2/3    63 800 / 65 100 / 67 050</pre>
+<!-- ════════ MUNDO COMPASS ════════ -->
+<section class="world compass" id="compass">
+  <div class="world-head">
+    <div class="eyebrow">La brujula</div>
+    <div class="wtitle">COMPASS</div>
+    <div class="wsub">Detectar el evento es la mitad. Compass marca la <b>direccion</b> y entrega
+      la señal completa: entrada, stop y tres objetivos — calculados al instante,
+      gestionados hasta el cierre.</div>
+    <div class="badge-shadow"><span class="bdot"></span>SEÑALES CON NIVELES COMPLETOS</div>
+  </div>
+  <div class="scene" id="cscene">
+    <div class="scene-inner">
+      <canvas id="compass-scene" style="width:100%;height:clamp(340px,56vh,540px);display:block;background:rgba(13,13,13,.78);border:1px solid var(--border);border-radius:8px;backdrop-filter:blur(5px)"></canvas>
+      <div class="beat" id="cbeat1">
+        <div class="num">01 / 03</div>
+        <h3>Setup detectado</h3>
+        <p>El modelo identifica el patron y define la direccion. Cada señal nace con
+           un nivel de confianza minimo — si no lo alcanza, no se publica.</p>
       </div>
-    </div>
-    <div class="how-step">
-      <div class="step-num" data-i18n="how_2_t">02 · Vida del trade</div>
-      <h3 class="s" data-i18n="how_2_t_h">Oráculo neutro</h3>
-      <p data-i18n="how_2_d">Binance es el oráculo. Si el precio toca un nivel, el bot lo registra con timestamp. Cierre por SL, TP3, o tiempo.</p>
-      <div class="vis">
-        <span class="lbl">EVENTS</span>
-<pre style="margin:0; color: var(--ink-dim); font-size: 10px;">  03:14 UTC  tp1_hit    +2.23%
-  09:48 UTC  tp2_hit    +4.31%
-  18:02 UTC  closed     time-stop
-             pnl_avg    +3.27%</pre>
+      <div class="beat" id="cbeat2">
+        <div class="num">02 / 03</div>
+        <h3>Niveles al instante</h3>
+        <p>Stop y objetivos calculados con la volatilidad del momento:
+           <b style="color:#22c55e">SL · TP1 · TP2 · TP3</b>. Sin improvisacion,
+           sin mover lineas despues.</p>
       </div>
-    </div>
-    <div class="how-step">
-      <div class="step-num" data-i18n="how_3_t">03 · Auditoría</div>
-      <h3 class="s" data-i18n="how_3_t_h">Cadena pública</h3>
-      <p data-i18n="how_3_d">Cada fila publicada tiene un SHA256 que depende del row_hash anterior. Re-ejecuta el script y comprueba la cadena tú mismo.</p>
-      <div class="vis">
-        <span class="lbl">VERIFY</span>
-<pre style="margin:0; color: var(--ink-dim); font-size: 10px;">  $ python verify.py
-  block #001  ✓
-  block #002  ✓
-  …
-  block #042  ✓
-  <span style="color: var(--green)">Chain OK</span></pre>
+      <div class="beat" id="cbeat3">
+        <div class="num">03 / 03</div>
+        <h3>Gestion hasta el cierre</h3>
+        <p>El tracker vigila cada 5 minutos: toca TP1 y el stop sube a breakeven,
+           TP2 lo asegura, TP3 cierra. Todo queda registrado en el track record.</p>
       </div>
     </div>
   </div>
+  <div class="wcta"><span class="btn" onclick="document.getElementById('waitlist').scrollIntoView()">UNETE AL CANAL</span></div>
 </section>
 
-<!-- ANATOMY -->
-<section class="land">
-  <div class="kicker" data-i18n="anatomy_kicker">Anatomía de una señal</div>
-  <h2 class="serif" data-i18n="anatomy_title">Un bloque, ocho campos materiales.</h2>
-  <p style="color: var(--ink-dim); max-width: 760px; margin-top: 18px; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; line-height: 1.7;" data-i18n="anatomy_sub">
-    Estos campos están en la cadena. Cualquier cambio rompe el hash. El resto (TP hits, cierre) son transiciones observables verificables contra el histórico de Binance.
-  </p>
+<!-- ════════ MUNDO FORESHOCK ════════ -->
+<section class="world" id="foreshock">
+  <div class="world-head">
+    <div class="eyebrow">El sismografo</div>
+    <div class="wtitle">FORESHOCK</div>
+    <div class="wsub">Todo gran movimiento deja un temblor previo. Foreshock vigila la
+      microestructura del mercado cada hora para sentir la <b style="color:#FFB02E">onda P</b>
+      — el precursor — antes de que llegue el movimiento real.</div>
+    <div class="badge-shadow"><span class="bdot"></span>EN VALIDACION SHADOW — JUN 2026</div>
+  </div>
 
-  <div class="anatomy">
-    <div class="anatomy-left">
-      <div class="kicker no-rule mb-16">// signal.json</div>
-      <div class="signal-card">
-        <div class="sc-head">
-          <span><b>BLOCK #042</b> · BTCUSDT</span>
-          <span class="tag long">long</span>
-        </div>
-        <div class="sc-row"><span class="k">id</span><span class="v">42</span></div>
-        <div class="sc-row"><span class="k">timestamp_emision</span><span class="v">2026-04-30 11:14:08 UTC</span></div>
-        <div class="sc-row"><span class="k">symbol</span><span class="v">BTCUSDT</span></div>
-        <div class="sc-row"><span class="k">direction</span><span class="v pos">long</span></div>
-        <div class="sc-row"><span class="k">timeframe</span><span class="v">4h</span></div>
-        <div class="sc-row"><span class="k">entry_price</span><span class="v">62 410.50</span></div>
-        <div class="sc-row"><span class="k">stop_loss</span><span class="v neg">61 220.00</span></div>
-        <div class="sc-row"><span class="k">target_1</span><span class="v">63 800.00</span></div>
-        <div class="sc-row"><span class="k">target_2</span><span class="v">65 100.00</span></div>
-        <div class="sc-row"><span class="k">target_3</span><span class="v">67 050.00</span></div>
-        <div class="sc-foot">
-          prev_hash · 8c4f2a91d3b7e0... <br>
-          row_hash &nbsp;· <span style="color: var(--green)">a9b2c4f1d80e7b35e6c2911ac4f7d3b2e8…</span>
-        </div>
+  <div class="scene" id="scene">
+    <div class="scene-inner">
+      <canvas id="seismo-scene"></canvas>
+      <div class="beat" id="beat1">
+        <div class="num">01 / 03</div>
+        <h3>El mercado parece quieto</h3>
+        <p>Precio lateral, volumen normal. Para el ojo humano no esta pasando nada.
+           El sismografo escucha igual: 17 canales de microestructura, cada hora.</p>
       </div>
-    </div>
-    <div class="anatomy-right">
-      <div class="field">
-        <span class="fk">id<span class="pill">int</span></span>
-        <span class="fd">Numeración secuencial. Si falta un id, alguien borró un trade.</span>
+      <div class="beat" id="beat2">
+        <div class="num">02 / 03</div>
+        <h3>La onda P llega silenciosa</h3>
+        <p>Compresion de rango, flujo agresor desbalanceado, funding tensionado.
+           La aguja lo registra y el score cruza el umbral: <b style="color:#FFB02E">alerta emitida</b>.
+           El precio todavia no se movio.</p>
       </div>
-      <div class="field">
-        <span class="fk">timestamp_emision<span class="pill">utc</span></span>
-        <span class="fd">Cuándo se emitió la señal, al segundo. Anterior a cualquier movimiento de precio observable.</span>
-      </div>
-      <div class="field">
-        <span class="fk">symbol<span class="pill">str</span></span>
-        <span class="fd">Par de Binance. Toda señal opera contra OHLC público.</span>
-      </div>
-      <div class="field">
-        <span class="fk">direction<span class="pill">enum</span></span>
-        <span class="fd">long o short. No hay neutral, no hay "ajustes posteriores".</span>
-      </div>
-      <div class="field">
-        <span class="fk">entry · sl<span class="pill">float</span></span>
-        <span class="fd">Precio de entrada y stop loss exactos. Inmutables tras la emisión.</span>
-      </div>
-      <div class="field">
-        <span class="fk">tp1 · tp2 · tp3<span class="pill">float</span></span>
-        <span class="fd">Tres targets escalonados. La estrategia asume cierre parcial en cada nivel.</span>
-      </div>
-      <div class="field">
-        <span class="fk">row_hash<span class="pill">sha256</span></span>
-        <span class="fd"><b style="color: var(--green)">SHA256(prev_hash + canonical_json(material_fields))</b>. El sello que une este bloque al resto.</span>
+      <div class="beat" id="beat3">
+        <div class="num">03 / 03</div>
+        <h3>Horas despues, el terremoto</h3>
+        <p>La onda S — el movimiento real — llega con <b style="color:#FFB02E">~6 horas
+           de anticipacion media</b> desde la alerta. Quien sintio el temblor, ya estaba listo.</p>
       </div>
     </div>
   </div>
+
+  <div class="wstats" id="wstats">
+    <div class="stat"><div class="v"><span id="st1">0</span><small>%</small></div>
+      <div class="l">eventos capturados</div></div>
+    <div class="stat"><div class="v">~<span id="st2">0</span><small>h</small></div>
+      <div class="l">anticipacion media</div></div>
+    <div class="stat"><div class="v"><span id="st3">0</span></div>
+      <div class="l">falsas alarmas / dia</div></div>
+  </div>
+  <div class="wnote">en confirmacion shadow desde junio 2026 · no es asesoria financiera</div>
+  <div class="wcta"><span class="btn" onclick="document.getElementById('waitlist').scrollIntoView()">SE EL PRIMERO CUANDO SALGA DEL SHADOW</span></div>
 </section>
 
-<!-- WHY VERIFIABLE -->
-<section class="land">
-  <div class="kicker" data-i18n="why_kicker">Por qué importa</div>
-  <h2 class="serif" data-i18n="why_title">Track records no verificables son ficción.</h2>
-
-  <div class="why-quote">
-    <span data-i18n="why_p">Casi cualquier cuenta de señales puede borrar pérdidas, editar entries o publicar solo ganadores. Una <span class="k">cadena de hashes</span> hace eso imposible: cada modificación deja huella matemática. Tú no tienes que confiar — comprueba.</span>
+<!-- ════════ TRACK RECORD ════════ -->
+<section class="world track" id="track">
+  <div class="world-head" style="min-height:48vh">
+    <div class="eyebrow">La prueba</div>
+    <div class="wtitle">TRACK RECORD</div>
+    <div class="wsub">Cada señal queda <b>encadenada criptograficamente</b> a la anterior
+      en el momento de publicarse. Editar el pasado romperia la cadena —
+      por eso puedes confiar en el historial completo.</div>
   </div>
 
-  <div class="why-grid">
-    <div class="why-cell">
-      <div class="num">/ 01</div>
-      <h4 data-i18n="why_b1">Inmutabilidad</h4>
-      <p data-i18n="why_b1d">SHA256 + chaining. Modificar es romper.</p>
-    </div>
-    <div class="why-cell">
-      <div class="num">/ 02</div>
-      <h4 data-i18n="why_b2">Reproducible</h4>
-      <p data-i18n="why_b2d">Script Python de 30 líneas. Sin servicios.</p>
-    </div>
-    <div class="why-cell">
-      <div class="num">/ 03</div>
-      <h4 data-i18n="why_b3">Oráculo neutro</h4>
-      <p data-i18n="why_b3d">Binance OHLC. No nuestra base de datos.</p>
-    </div>
-    <div class="why-cell">
-      <div class="num">/ 04</div>
-      <h4 data-i18n="why_b4">Datos abiertos</h4>
-      <p data-i18n="why_b4d">JSON + CSV. Sin login. Sin paywall.</p>
-    </div>
+  <div class="chain-wrap" id="chain"></div>
+
+  <div class="wstats" id="trstats" style="padding-top:10px">
+    <div class="stat"><div class="v"><span id="tst1">0</span></div><div class="l">señales publicadas</div></div>
+    <div class="stat"><div class="v"><span id="tst2">0</span><small>%</small></div><div class="l">win rate</div></div>
+    <div class="stat"><div class="v"><span id="tst3">0</span><small>%</small></div><div class="l">pnl medio por señal</div></div>
   </div>
+
+  <div class="tr-table" id="trtable">
+    <div class="tr-row hdr"><span>señal</span><span>direccion</span><span>resultado</span><span>pnl</span></div>
+  </div>
+  <div class="wnote" id="trnote">cargando track record…</div>
+  <div class="wcta"><a class="btn" href="track-record.html" style="text-decoration:none">VER HISTORIAL COMPLETO</a></div>
 </section>
 
-<!-- PRICING / WAITLIST -->
-<section class="land" id="waitlist">
-  <div class="kicker" data-i18n="pricing_kicker">Acceso</div>
-  <h2 class="serif" data-i18n="pricing_title">Lista de espera abierta.</h2>
-  <div class="pricing-card">
-    <div class="pc-left">
-      <div class="kicker no-rule">// public</div>
-      <h3 class="p">Track Record</h3>
-      <p class="s">Histórico completo de señales. Cadena de hashes verificable. JSON, CSV, script de auditoría. Para siempre. Sin login.</p>
-      <ul class="feature-list">
-        <li>Todas las señales históricas (entry, SL, TP1/TP2/TP3)</li>
-        <li>Hash chain SHA256 reproducible localmente</li>
-        <li>Métricas en vivo: win rate, PnL, distribuciones</li>
-        <li>Datos crudos descargables · sin paywall</li>
-      </ul>
-      <div style="margin-top: 24px;">
-        <a href="track-record.html" class="btn">↗ Abrir track record</a>
-      </div>
-    </div>
-    <div class="pc-right">
-      <div class="kicker no-rule">// private · invite-only</div>
-      <h3 class="p">Live Signals</h3>
-      <p class="s" data-i18n="pricing_sub">El track record es público para siempre. Las señales en vivo se distribuyen por Telegram a un grupo limitado.</p>
-      <ul class="feature-list">
-        <li>Alertas Telegram al instante de la emisión</li>
-        <li>Updates de TP / SL hits en tiempo real</li>
-        <li>Notas semanales del operador</li>
-        <li>Acceso al canal privado de Q&A</li>
-      </ul>
-      <!-- Beehiiv subscribe form (v3 embed) -->
-      <div class="bh-form-wrap" style="margin-top: 24px;">
-        <div data-beehiiv-embed-form-id="5a50cd54-0479-454c-aae4-5879bd3afcf2"></div>
-        <script async src="https://subscribe-forms.beehiiv.com/v3/loader.js" data-beehiiv-form="5a50cd54-0479-454c-aae4-5879bd3afcf2"></script>
-        <div class="note" data-i18n="pricing_note" style="margin-top: 14px;">Te avisamos cuando abramos plazas. Cero spam.</div>
-      </div>
+<!-- ═══ WAITLIST ═══ -->
+<section class="world track" id="waitlist">
+  <div class="world-head" style="min-height:42vh;padding-bottom:10px">
+    <div class="eyebrow">Acceso anticipado</div>
+    <div class="wtitle" style="font-size:clamp(32px,5vw,68px)">UNETE A LA LISTA</div>
+    <div class="wsub">Recibe las señales y novedades del ecosistema antes que nadie.</div>
+    <div style="margin-top:30px;min-height:120px">
+      <script async src="https://subscribe-forms.beehiiv.com/v3/loader.js" data-beehiiv-form="5a50cd54-0479-454c-aae4-5879bd3afcf2"></script>
     </div>
   </div>
+  <div class="wnote" style="padding-bottom:50px">© 2026 QuantumBlock ·
+    <a href="track-record.html" style="color:#3CE6AC">track record</a> ·
+    <a href="verify.html" style="color:#3CE6AC">verificar cadena</a> ·
+    no es asesoria financiera</div>
 </section>
 
-<footer class="qb-footer">
-  <div>QUANTUMBLOCK · 2026 · <span data-i18n="footer_legal">Información histórica auditable. No constituye asesoramiento financiero.</span></div>
-  <div class="row gap-16">
-    <a href="track-record.html" data-i18n="nav_track">Track Record</a>
-    <a href="verify.html" data-i18n="nav_verify">Verificar</a>
-    <a href="signals.json">JSON</a>
-    <a href="signals.csv">CSV</a>
-  </div>
-</footer>
-
-<div class="reg bl"></div>
-<div class="reg br"></div>
-
-<div class="qb-tweaks" id="tweaks-panel">
-  <div class="t-head">
-    <span>TWEAKS</span>
-    <button id="tweaks-close">×</button>
-  </div>
-  <div class="t-body">
-    <div class="t-row">
-      <div class="t-lbl">Theme</div>
-      <div class="seg" data-tweak="theme">
-        <button data-val="dark">Dark</button>
-        <button data-val="light">Light</button>
-      </div>
-    </div>
-    <div class="t-row">
-      <div class="t-lbl">Hash chain prominence</div>
-      <div class="seg" data-tweak="hashProm">
-        <button data-val="hero">Hero</button>
-        <button data-val="standard">Standard</button>
-        <button data-val="subtle">Subtle</button>
-      </div>
-    </div>
-    <div class="t-row">
-      <div class="t-lbl">Language</div>
-      <div class="seg" data-tweak="lang">
-        <button data-val="es">ES</button>
-        <button data-val="en">EN</button>
-      </div>
-    </div>
-    <div class="t-row">
-      <div class="t-lbl">Background motion</div>
-      <div class="seg" data-tweak="bgIntensity">
-        <button data-val="off">Off</button>
-        <button data-val="subtle">Subtle</button>
-        <button data-val="normal">Normal</button>
-        <button data-val="intense">Intense</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="app.js?v=3"></script>
-<script src="qb-bg.js?v=3"></script>
-<script src="landing-anim.js?v=3"></script>
 <script>
-(function(){
-  const { Tweaks, genMockSignals, fakeHash } = window.QB;
+/* ════════════════════════════════════════════════════════════
+   DATOS REALES: Binance WS publico (btcusdt@ticker, 1s).
+   La pagina entera reacciona: --pulse-dur, mar de ondas,
+   epicentros en movimientos grandes, needle, HUD.
+   Fallback: REST polling cada 5s si el WS no conecta.
+   ════════════════════════════════════════════════════════════ */
+var M = { price: null, prev: null, chg24: 0, vol: 0, k: 0, lastTickDir: 0, connected: false };
+var returns = [];
 
-  // extra i18n keys for landing
-  Object.assign(window.QB.I18N.es, {
-    hero_title_part1: "Operamos.",
-    hero_title_part2: "No te pedimos confianza.",
-    hero_title_part3: "Lo grabamos en piedra criptográfica.",
-    how_1_t_h: "Detección y publicación",
-    how_2_t_h: "Oráculo neutro",
-    how_3_t_h: "Cadena pública",
-  });
-  Object.assign(window.QB.I18N.en, {
-    hero_title_part1: "We trade.",
-    hero_title_part2: "We don't ask for trust.",
-    hero_title_part3: "We carve it in cryptographic stone.",
-    how_1_t_h: "Detection & publish",
-    how_2_t_h: "Neutral oracle",
-    how_3_t_h: "Public chain",
-  });
-
-  // DNA helix mount
-  window.QB.mountHelix(document.getElementById('helix-strip'));
-
-  // live stats — datos reales desde signals.json
-  fetch('signals.json?_=' + Date.now())
-    .then(r => r.json())
-    .then(data => {
-      const sigs = (data.signals || []).filter(s => !(s.source || '').endsWith('_test'));
-      const total   = sigs.length;
-      const closed  = sigs.filter(s => !!s.closed_at);
-      const wins    = closed.filter(s => !!s.tp1_hit_at).length;
-      const wr      = closed.length ? (wins / closed.length * 100).toFixed(1) : '0.0';
-      const chained = sigs.filter(s => s.row_hash && s.row_hash !== '0'.repeat(64)).length;
-      document.getElementById('lv-total').textContent = String(total).padStart(3, '0');
-      document.getElementById('lv-win').textContent   = wr + '%';
-      document.getElementById('lv-chain').textContent = String(chained).padStart(3, '0');
-    })
-    .catch(() => {});
-
-  // theme/lang
-  document.getElementById('theme-toggle').addEventListener('click', () => {
-    Tweaks.set({ theme: Tweaks.get().theme === 'dark' ? 'light' : 'dark' });
-  });
-  const langBtn = document.getElementById('lang-toggle');
-  if (langBtn) langBtn.addEventListener('click', () => {
-    Tweaks.set({ lang: Tweaks.get().lang === 'es' ? 'en' : 'es' });
-  });
-
-  // tweaks panel
-  const panel = document.getElementById('tweaks-panel');
-  function syncUI() {
-    const s = Tweaks.get();
-    panel.querySelectorAll('.seg').forEach(seg => {
-      const key = seg.dataset.tweak;
-      seg.querySelectorAll('button').forEach(b => {
-        b.classList.toggle('active', s[key] === b.dataset.val);
-      });
-    });
+function onPrice(p, chg24) {
+  if (M.price !== null) {
+    var r = Math.abs(p / M.price - 1);
+    returns.push(r); if (returns.length > 90) returns.shift();
+    var sum = 0; for (var x of returns) sum += x;
+    M.vol = sum / returns.length;                      // |ret| medio por tick (~1s)
+    M.k = Math.min(M.vol / 0.0004, 1);                 // 0.04%/s = tope visual
+    M.lastTickDir = p > M.price ? 1 : (p < M.price ? -1 : M.lastTickDir);
+    if (Math.abs(p / M.price - 1) > 0.0006) spawnQuake(true);   // movimiento fuerte
   }
-  panel.querySelectorAll('.seg').forEach(seg => {
-    seg.addEventListener('click', e => {
-      const btn = e.target.closest('button'); if (!btn) return;
-      Tweaks.set({ [seg.dataset.tweak]: btn.dataset.val });
-      syncUI();
-    });
-  });
-  Tweaks.onChange(syncUI);
-  document.getElementById('tweaks-close').addEventListener('click', () => {
-    panel.classList.remove('open');
-    try { window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*'); } catch {}
-  });
-  window.addEventListener('message', e => {
-    const d = e.data; if (!d || !d.type) return;
-    if (d.type === '__activate_edit_mode') panel.classList.add('open');
-    if (d.type === '__deactivate_edit_mode') panel.classList.remove('open');
-  });
-  try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch {}
+  M.prev = M.price; M.price = p;
+  if (chg24 !== undefined) M.chg24 = chg24;
+  document.documentElement.style.setProperty('--pulse-dur', (3.6 - M.k * 2.7).toFixed(2) + 's');
+  renderHUD();
+}
 
-  Tweaks.apply();
-  syncUI();
+function renderHUD() {
+  var el = document.getElementById('price');
+  el.textContent = '$' + M.price.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  el.classList.remove('up', 'down'); void el.offsetWidth;
+  if (M.lastTickDir > 0) el.classList.add('up'); else if (M.lastTickDir < 0) el.classList.add('down');
+  var ch = document.getElementById('chg');
+  ch.textContent = (M.chg24 >= 0 ? '+' : '') + M.chg24.toFixed(2) + '%';
+  ch.className = 'chg ' + (M.chg24 >= 0 ? 'pos' : 'neg');
+  document.getElementById('vol').textContent = (M.vol * 100).toFixed(4) + '%/s';
+}
+
+function setLive(on, txt) {
+  M.connected = on;
+  var lv = document.getElementById('live');
+  lv.className = 'live' + (on ? '' : ' off');
+  document.getElementById('livetxt').textContent = txt;
+}
+
+function connectWS() {
+  try {
+    var ws = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@ticker');
+    ws.onopen = function () { setLive(true, 'LIVE — BINANCE WS'); };
+    ws.onmessage = function (ev) {
+      var d = JSON.parse(ev.data);
+      onPrice(parseFloat(d.c), parseFloat(d.P));
+    };
+    ws.onclose = function () { setLive(false, 'RECONECTANDO'); setTimeout(connectWS, 3000); };
+    ws.onerror = function () { ws.close(); };
+  } catch (e) { pollREST(); }
+}
+function pollREST() {
+  setLive(false, 'LIVE — REST 5s');
+  setInterval(function () {
+    fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT')
+      .then(function (r) { return r.json(); })
+      .then(function (d) { onPrice(parseFloat(d.lastPrice), parseFloat(d.priceChangePercent)); })
+      .catch(function () {});
+  }, 5000);
+}
+connectWS();
+
+/* ── MAR CUANTICO: ondas + epicentros + particulas ── */
+var sea = document.getElementById('sea'), sctx = sea.getContext('2d');
+var W, H, DPR = devicePixelRatio || 1;
+function fit() { W = sea.width = innerWidth * DPR; H = sea.height = innerHeight * DPR; }
+addEventListener('resize', fit); fit();
+
+var quakes = [], dust = [];
+for (var i = 0; i < 50; i++) dust.push({ x: Math.random(), y: Math.random(), s: .2 + Math.random() * .8 });
+
+function spawnQuake(big) {
+  quakes.push({ x: Math.random() * W, y: H * (0.25 + Math.random() * 0.5), r: 0,
+                max: (big ? 260 : 150) + Math.random() * 200,
+                speed: .5 + Math.random() * .6 + M.k,
+                hue: big ? '247,183,49' : '60,230,172' });
+  if (quakes.length > 10) quakes.shift();
+}
+setInterval(function () { spawnQuake(false); }, 3000);
+
+var t0 = Date.now();
+var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+(function drawSea() {
+  if (document.hidden) { setTimeout(function(){ requestAnimationFrame(drawSea); }, 600); return; }
+  sctx.clearRect(0, 0, W, H);
+  var t = (Date.now() - t0) / 1000, k = M.k;
+
+  // 4 lineas de onda fluyendo — amplitud = volatilidad real
+  for (var L = 0; L < 4; L++) {
+    var yBase = H * (0.30 + L * 0.16);
+    var amp = (6 + k * 46) * DPR * (1 - L * 0.16);
+    sctx.beginPath();
+    for (var x = 0; x <= W; x += 5 * DPR) {
+      var ph = t * (0.5 + L * 0.18) + x / (170 * DPR) + L * 2.1;
+      var y = yBase + Math.sin(ph) * amp * 0.6
+                    + Math.sin(ph * 2.7 + L) * amp * 0.3
+                    + Math.sin(ph * 5.3) * amp * 0.12;
+      x === 0 ? sctx.moveTo(x, y) : sctx.lineTo(x, y);
+    }
+    sctx.strokeStyle = 'rgba(60,230,172,' + (0.05 + L * 0.022 + k * 0.06).toFixed(3) + ')';
+    sctx.lineWidth = 1 * DPR;
+    sctx.stroke();
+  }
+
+  // epicentros (movimientos reales fuertes = ambar)
+  for (var q of quakes) {
+    q.r += q.speed * DPR;
+    for (var c = 0; c < 3; c++) {
+      var r = q.r - c * 24 * DPR; if (r <= 0 || r > q.max * DPR) continue;
+      var a = (1 - r / (q.max * DPR)) * 0.12;
+      sctx.beginPath(); sctx.arc(q.x, q.y, r, 0, 7);
+      sctx.strokeStyle = 'rgba(' + q.hue + ',' + a.toFixed(3) + ')';
+      sctx.lineWidth = 1 * DPR; sctx.stroke();
+    }
+  }
+  quakes = quakes.filter(function (q) { return q.r < (q.max + 60) * DPR; });
+
+  // polvo cuantico
+  for (var d of dust) {
+    d.y -= 0.00018 * d.s * (1 + k * 3); if (d.y < 0) { d.y = 1; d.x = Math.random(); }
+    sctx.beginPath();
+    sctx.arc(d.x * W, d.y * H, d.s * DPR, 0, 7);
+    sctx.fillStyle = 'rgba(60,230,172,' + (0.10 + k * 0.18).toFixed(2) + ')';
+    sctx.fill();
+  }
+  if (!reduced) requestAnimationFrame(drawSea);
 })();
+
+/* ── MARKET NEEDLE (marca registrada del ecosistema) ── */
+var nc = document.getElementById('needle'), nctx = nc.getContext('2d');
+function nfit() { nc.width = nc.clientWidth * DPR; nc.height = nc.clientHeight * DPR; }
+addEventListener('resize', nfit); setTimeout(nfit, 100);
+var pts = [], v = 0, burst = 0;
+(function drawNeedle() {
+  if (document.hidden || reduced) { setTimeout(function(){ requestAnimationFrame(drawNeedle); }, 600); return; }
+  var w = nc.width, h = nc.height, mid = h / 2, k = M.k;
+  if (Math.random() < 0.005 + k * 0.05) burst = 1;
+  burst *= 0.93;
+  var amp = (1.2 + k * 13 + burst * 18) * DPR;
+  v += (Math.random() - 0.5) * amp * 0.7; v *= 0.82;
+  pts.push(mid + Math.max(Math.min(v, h * 0.46), -h * 0.46));
+  var maxPts = Math.floor(w / (1.5 * DPR)) || 200;
+  while (pts.length > maxPts) pts.shift();
+  nctx.clearRect(0, 0, w, h);
+  nctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  nctx.beginPath(); nctx.moveTo(0, mid); nctx.lineTo(w, mid); nctx.stroke();
+  var col = M.lastTickDir < 0 ? '239,68,68' : '60,230,172';
+  var g = nctx.createLinearGradient(0, 0, w, 0);
+  g.addColorStop(0, 'rgba(' + col + ',0)'); g.addColorStop(1, 'rgba(' + col + ',0.9)');
+  nctx.strokeStyle = g; nctx.lineWidth = 1.3 * DPR;
+  nctx.beginPath();
+  var dx = w / maxPts;
+  for (var i = 0; i < pts.length; i++) {
+    var x = w - (pts.length - i) * dx;
+    i ? nctx.lineTo(x, pts[i]) : nctx.moveTo(x, pts[i]);
+  }
+  nctx.stroke();
+  requestAnimationFrame(drawNeedle);
+})();
+
+/* ── ENTRADA AAA (GSAP): letras stagger + HUD + needle ── */
+var word = 'QUANTUMBLOCK';
+var mega = document.getElementById('mega');
+mega.innerHTML = word.split('').map(function (ch, i) {
+  return '<span class="ch' + (i < 7 ? ' qb' : '') + '">' + ch + '</span>';
+}).join('');
+gsap.to('.ch', { opacity: 1, y: 0, duration: 1.1, stagger: 0.055, ease: 'power4.out', delay: 0.25 });
+gsap.to('#tag',   { opacity: 1, duration: 1, delay: 1.2 });
+gsap.to('#hud',   { opacity: 1, y: 0, duration: 1, delay: 1.55, ease: 'power2.out' });
+gsap.to('#nstrip',{ opacity: 1, duration: 1, delay: 1.9 });
+gsap.to('#hint',  { opacity: 1, duration: 1, delay: 2.6 });
+
+/* ════════════════════════════════════════════════════════════
+   MUNDO FORESHOCK — escena pinned + scrubbed:
+   un sismograma que SE DIBUJA con tu scroll. Quieto → onda P
+   (el precursor, alerta) → onda S (el movimiento real, ~6h despues).
+   ════════════════════════════════════════════════════════════ */
+gsap.registerPlugin(ScrollTrigger);
+
+var SC = document.getElementById('seismo-scene');
+var sccx = SC.getContext('2d');
+var sceneP = 0;
+
+function scFit() { SC.width = SC.clientWidth * DPR; SC.height = SC.clientHeight * DPR; }
+addEventListener('resize', scFit); setTimeout(scFit, 100);
+
+// ruido determinista (misma forma en cada frame)
+var NZ = []; for (var i = 0; i < 2048; i++) NZ.push(Math.random() - 0.5);
+function noiseAt(u) { var idx = Math.floor(u * 2040); return NZ[idx]; }
+function envelope(u, c, w) { var d = (u - c) / w; return Math.exp(-d * d * 3); }
+
+// la señal: quieto + paquete P (rapido, chico) + paquete S (lento, enorme)
+function signalAt(u) {
+  var quiet = noiseAt(u) * 4;
+  var pWave = Math.sin(u * 760) * 22 * envelope(u, 0.42, 0.055);
+  var sWave = Math.sin(u * 215) * 105 * envelope(u, 0.78, 0.10) * (1 + noiseAt(u) * 0.25);
+  return quiet + pWave + sWave;
+}
+
+var P_BAND = [0.355, 0.50], S_BAND = [0.655, 0.92], THR_AT = 0.455;
+
+function drawScene() {
+  var W = SC.width, H = SC.height, mid = H * 0.46, p = sceneP;
+  sccx.clearRect(0, 0, W, H);
+  var fA = function (from, speed) { return Math.max(Math.min((p - from) * (speed || 8), 1), 0); };
+
+  // bandas de fase
+  function band(b, rgb, label, sub) {
+    var a = fA(b[0]);
+    if (a <= 0) return;
+    sccx.fillStyle = 'rgba(' + rgb + ',' + (0.055 * a) + ')';
+    sccx.fillRect(b[0] * W, 0, (b[1] - b[0]) * W, H);
+    sccx.fillStyle = 'rgba(' + rgb + ',' + (0.9 * a) + ')';
+    sccx.font = '600 ' + 11 * DPR + 'px Inter';
+    sccx.fillText(label, b[0] * W + 10 * DPR, 24 * DPR);
+    sccx.fillStyle = 'rgba(115,115,115,' + a + ')';
+    sccx.font = 10 * DPR + 'px Inter';
+    sccx.fillText(sub, b[0] * W + 10 * DPR, 40 * DPR);
+  }
+  band(P_BAND, '255,176,46', 'ONDA P', 'el precursor — silencioso');
+  band(S_BAND, '239,68,68', 'ONDA S', 'el movimiento real');
+
+  // bracket de anticipacion (~6h) entre alerta y onda S
+  var bA = fA(0.70, 6);
+  if (bA > 0) {
+    var x1 = THR_AT * W, x2 = S_BAND[0] * W, yB = H * 0.12;
+    sccx.strokeStyle = 'rgba(255,176,46,' + (0.7 * bA) + ')';
+    sccx.lineWidth = 1 * DPR;
+    sccx.beginPath();
+    sccx.moveTo(x1, yB + 8 * DPR); sccx.lineTo(x1, yB);
+    sccx.lineTo(x2, yB); sccx.lineTo(x2, yB + 8 * DPR);
+    sccx.stroke();
+    sccx.fillStyle = 'rgba(255,176,46,' + bA + ')';
+    sccx.font = '600 ' + 11 * DPR + 'px "IBM Plex Mono"';
+    sccx.textAlign = 'center';
+    sccx.fillText('~6h de anticipacion media', (x1 + x2) / 2, yB - 7 * DPR);
+    sccx.textAlign = 'left';
+  }
+
+  // linea base + traza dibujandose hasta el cursor
+  sccx.strokeStyle = 'rgba(255,255,255,0.05)';
+  sccx.beginPath(); sccx.moveTo(0, mid); sccx.lineTo(W, mid); sccx.stroke();
+  var cursor = Math.min(p / 0.96, 1);
+  sccx.beginPath();
+  for (var x = 0; x <= cursor * W; x += 2 * DPR) {
+    var u = x / W;
+    var y = mid + signalAt(u) * DPR * (H / (540 * DPR));
+    x === 0 ? sccx.moveTo(x, y) : sccx.lineTo(x, y);
+  }
+  // color de la traza segun zona del cursor
+  var inS = cursor > S_BAND[0];
+  sccx.strokeStyle = inS ? 'rgba(239,68,68,0.9)' : 'rgba(255,176,46,0.9)';
+  sccx.lineWidth = 1.5 * DPR;
+  sccx.stroke();
+
+  // punta con halo
+  var cu = cursor, cy = mid + signalAt(cu) * DPR * (H / (540 * DPR));
+  sccx.beginPath();
+  sccx.arc(cu * W, cy, 3 * DPR, 0, 7);
+  sccx.fillStyle = inS ? 'rgba(239,68,68,1)' : 'rgba(255,176,46,1)';
+  sccx.shadowColor = sccx.fillStyle; sccx.shadowBlur = 12 * DPR;
+  sccx.fill(); sccx.shadowBlur = 0;
+
+  // mini-gauge del score (abajo izquierda): sube al cruzar la onda P
+  var gx = 18 * DPR, gy = H - 34 * DPR, gw = 170 * DPR, gh = 5 * DPR;
+  var score = 0.05 + 0.17 * fA(0.36, 10) - 0.04 * fA(0.62, 4);
+  var thr = 0.171, gmax = 0.30;
+  sccx.fillStyle = 'rgba(255,255,255,0.08)';
+  sccx.fillRect(gx, gy, gw, gh);
+  sccx.fillStyle = score >= thr ? 'rgba(239,68,68,0.95)' : 'rgba(255,176,46,0.85)';
+  sccx.fillRect(gx, gy, gw * Math.min(score / gmax, 1), gh);
+  sccx.fillStyle = 'rgba(239,68,68,0.9)';
+  sccx.fillRect(gx + gw * (thr / gmax) - 1 * DPR, gy - 3 * DPR, 2 * DPR, gh + 6 * DPR);
+  sccx.fillStyle = 'rgba(115,115,115,0.9)';
+  sccx.font = 9.5 * DPR + 'px "IBM Plex Mono"';
+  sccx.fillText('score foreshock', gx, gy - 8 * DPR);
+  if (score >= thr) {
+    var blink = 0.6 + Math.sin(Date.now() / 180) * 0.4;
+    sccx.fillStyle = 'rgba(239,68,68,' + blink + ')';
+    sccx.font = '600 ' + 11 * DPR + 'px "IBM Plex Mono"';
+    sccx.fillText('ALERTA EMITIDA', gx + gw + 14 * DPR, gy + gh);
+  }
+}
+
+// beats: crossfade segun progreso
+function beatOpacity(p) {
+  var b1 = p < 0.26 ? 1 : Math.max(1 - (p - 0.26) * 14, 0);
+  var b2 = Math.max(Math.min((p - 0.32) * 14, 1), 0) * (p < 0.60 ? 1 : Math.max(1 - (p - 0.60) * 14, 0));
+  var b3 = Math.max(Math.min((p - 0.66) * 14, 1), 0);
+  gsap.set('#beat1', { opacity: b1 }); gsap.set('#beat2', { opacity: b2 }); gsap.set('#beat3', { opacity: b3 });
+}
+
+if (reduced) {
+  sceneP = 1; setTimeout(function () { scFit(); drawScene(); }, 200);
+  gsap.set('#beat3', { opacity: 1 });
+} else {
+  ScrollTrigger.create({
+    trigger: '#scene', start: 'top top', end: '+=2600',
+    pin: true, scrub: 0.45,
+    onUpdate: function (st) { sceneP = st.progress; beatOpacity(st.progress); },
+  });
+  (function sceneLoop() {
+    if (!document.hidden) drawScene();
+    requestAnimationFrame(sceneLoop);
+  })();
+}
+
+// stats count-up al entrar
+ScrollTrigger.create({
+  trigger: '#wstats', start: 'top 85%', once: true,
+  onEnter: function () {
+    var o = { a: 0, b: 0, c: 0 };
+    gsap.to(o, {
+      a: 70, b: 6, c: 0.64, duration: 1.6, ease: 'power2.out',
+      onUpdate: function () {
+        document.getElementById('st1').textContent = Math.round(o.a);
+        document.getElementById('st2').textContent = Math.round(o.b);
+        document.getElementById('st3').textContent = o.c.toFixed(2);
+      },
+    });
+  },
+});
+
+/* ════════ MUNDO PULSE: radar con barrido + pings ════════ */
+var RD = document.getElementById('radar'), rctx = RD.getContext('2d');
+function rdFit() { var s = RD.clientWidth; RD.width = s * DPR; RD.height = s * DPR; }
+addEventListener('resize', rdFit); setTimeout(rdFit, 100);
+
+var sweep = 0, pings = [];
+function spawnPing() {
+  var a = Math.random() * Math.PI * 2, r = 0.25 + Math.random() * 0.62;
+  pings.push({ a: a, r: r, born: Date.now(),
+               asset: Math.random() < 0.6 ? 'BTC' : 'ETH' });
+  if (pings.length > 6) pings.shift();
+  setTimeout(spawnPing, 2500 + Math.random() * 4000);
+}
+spawnPing();
+
+(function drawRadar() {
+  if (document.hidden || reduced) { setTimeout(function(){ requestAnimationFrame(drawRadar); }, 600); return; }
+  var W = RD.width, H = RD.height, cx = W / 2, cy = H / 2, R = W / 2 - 6 * DPR;
+  rctx.clearRect(0, 0, W, H);
+
+  // anillos + cruz
+  rctx.strokeStyle = 'rgba(60,230,172,0.13)'; rctx.lineWidth = 1 * DPR;
+  for (var i = 1; i <= 4; i++) { rctx.beginPath(); rctx.arc(cx, cy, R * i / 4, 0, 7); rctx.stroke(); }
+  rctx.beginPath(); rctx.moveTo(cx - R, cy); rctx.lineTo(cx + R, cy);
+  rctx.moveTo(cx, cy - R); rctx.lineTo(cx, cy + R); rctx.stroke();
+
+  // barrido con estela
+  sweep += 0.012 * (1 + (M.k || 0) * 1.5);
+  for (var t = 0; t < 26; t++) {
+    var a = sweep - t * 0.022;
+    rctx.beginPath(); rctx.moveTo(cx, cy);
+    rctx.lineTo(cx + Math.cos(a) * R, cy + Math.sin(a) * R);
+    rctx.strokeStyle = 'rgba(60,230,172,' + (0.16 * (1 - t / 26)).toFixed(3) + ')';
+    rctx.lineWidth = 2 * DPR; rctx.stroke();
+  }
+
+  // pings: aparecen cuando el barrido los cruza, con ripple
+  var now = Date.now();
+  for (var p of pings) {
+    var diff = ((sweep - p.a) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+    if (diff < 0.06 && !p.lit) { p.lit = now; }
+    if (!p.lit) continue;
+    var age = (now - p.lit) / 1000;
+    if (age > 5) continue;
+    var px = cx + Math.cos(p.a) * R * p.r, py = cy + Math.sin(p.a) * R * p.r;
+    var fade = Math.max(1 - age / 5, 0);
+    rctx.beginPath(); rctx.arc(px, py, 3 * DPR, 0, 7);
+    rctx.fillStyle = 'rgba(60,230,172,' + (0.95 * fade) + ')';
+    rctx.shadowColor = 'rgba(60,230,172,0.9)'; rctx.shadowBlur = 10 * DPR;
+    rctx.fill(); rctx.shadowBlur = 0;
+    var rr = (age * 26) * DPR;
+    rctx.beginPath(); rctx.arc(px, py, rr, 0, 7);
+    rctx.strokeStyle = 'rgba(60,230,172,' + (0.4 * fade) + ')'; rctx.lineWidth = 1 * DPR; rctx.stroke();
+    rctx.fillStyle = 'rgba(229,229,229,' + fade + ')';
+    rctx.font = '600 ' + 9.5 * DPR + 'px "IBM Plex Mono"';
+    rctx.fillText(p.asset, px + 9 * DPR, py - 7 * DPR);
+  }
+  requestAnimationFrame(drawRadar);
+})();
+
+gsap.utils.toArray('.pfeat').forEach(function (el, i) {
+  gsap.to(el, { opacity: 1, x: 0, duration: .9, delay: i * .14, ease: 'power3.out',
+                scrollTrigger: { trigger: '#pulse .pulse-flex', start: 'top 75%', once: true } });
+});
+
+/* ════════ MUNDO COMPASS: anatomia de una señal (scrubbed) ════════ */
+var CS = document.getElementById('compass-scene'), csx = CS.getContext('2d');
+var cP = 0;
+function csFit() { CS.width = CS.clientWidth * DPR; CS.height = CS.clientHeight * DPR; }
+addEventListener('resize', csFit); setTimeout(csFit, 100);
+
+// price path determinista: lateral -> entrada LONG -> sube tocando TP1/TP2
+var CPATH = []; (function () {
+  var y = 0.62, drift = 0;
+  for (var i = 0; i <= 400; i++) {
+    var u = i / 400;
+    if (u > 0.34) drift = -0.0011 - (u > 0.62 ? 0.0007 : 0);   // sube (y baja en canvas)
+    y += drift + NZ[i % 2040] * 0.006;
+    y = Math.max(Math.min(y, 0.8), 0.16);
+    CPATH.push(y);
+  }
+})();
+var LV = { entry: 0.575, sl: 0.70, tp1: 0.46, tp2: 0.36, tp3: 0.24 };
+
+function drawCompass() {
+  var W = CS.width, H = CS.height, p = cP;
+  csx.clearRect(0, 0, W, H);
+  var fA = function (from, speed) { return Math.max(Math.min((p - from) * (speed || 8), 1), 0); };
+
+  // niveles (fase 2): escalera SL/entry/TP1-3
+  var lvls = [
+    ['ENTRY', LV.entry, '229,229,229', 0.30],
+    ['SL',    LV.sl,    '239,68,68',  0.34],
+    ['TP1',   LV.tp1,   '34,197,94',  0.38],
+    ['TP2',   LV.tp2,   '34,197,94',  0.42],
+    ['TP3',   LV.tp3,   '34,197,94',  0.46],
+  ];
+  for (var L of lvls) {
+    var a = fA(L[3], 10); if (a <= 0) continue;
+    var y = L[1] * H;
+    csx.strokeStyle = 'rgba(' + L[2] + ',' + (0.55 * a) + ')';
+    csx.lineWidth = 1 * DPR; csx.setLineDash([5 * DPR, 5 * DPR]);
+    csx.beginPath(); csx.moveTo(W * 0.06, y); csx.lineTo(W * (0.06 + 0.88 * a), y); csx.stroke();
+    csx.setLineDash([]);
+    csx.fillStyle = 'rgba(' + L[2] + ',' + a + ')';
+    csx.font = '600 ' + 10.5 * DPR + 'px "IBM Plex Mono"';
+    csx.fillText(L[0], W * 0.012, y + 3.5 * DPR);
+  }
+
+  // flecha LONG (fase 1)
+  var aL = fA(0.10, 9);
+  if (aL > 0) {
+    csx.fillStyle = 'rgba(34,197,94,' + aL + ')';
+    csx.font = '800 ' + 15 * DPR + 'px Inter';
+    csx.fillText('LONG ↑', W * 0.34 - 40 * DPR, H * 0.10 + 10 * DPR);
+  }
+
+  // precio dibujandose hasta el cursor
+  var cursor = Math.min(p / 0.96, 1);
+  csx.beginPath();
+  for (var i = 0; i <= cursor * 400; i++) {
+    var x = W * (0.06 + 0.88 * (i / 400)), y = CPATH[i] * H;
+    i === 0 ? csx.moveTo(x, y) : csx.lineTo(x, y);
+  }
+  csx.strokeStyle = 'rgba(229,229,229,0.85)'; csx.lineWidth = 1.6 * DPR; csx.stroke();
+  var ci = Math.floor(cursor * 400);
+  var cxp = W * (0.06 + 0.88 * cursor), cyp = CPATH[ci] * H;
+  csx.beginPath(); csx.arc(cxp, cyp, 3 * DPR, 0, 7);
+  csx.fillStyle = '#22c55e'; csx.shadowColor = 'rgba(34,197,94,0.8)'; csx.shadowBlur = 10 * DPR;
+  csx.fill(); csx.shadowBlur = 0;
+
+  // hits TP1/TP2 (cuando el precio los cruza) + BE
+  function hit(label, lvlY, at, extra) {
+    var a = fA(at, 12); if (a <= 0) return;
+    var hx = W * (0.06 + 0.88 * (at + 0.02));
+    csx.fillStyle = 'rgba(34,197,94,' + a + ')';
+    csx.font = '700 ' + 10.5 * DPR + 'px Inter';
+    csx.fillText(label, hx, lvlY * H - 8 * DPR);
+    if (extra) { csx.fillStyle = 'rgba(115,115,115,' + a + ')';
+                 csx.font = 9.5 * DPR + 'px "IBM Plex Mono"';
+                 csx.fillText(extra, hx, lvlY * H + 14 * DPR); }
+  }
+  hit('✓ TP1', LV.tp1, 0.62, 'stop sube a breakeven');
+  hit('✓ TP2', LV.tp2, 0.80);
+}
+
+function cBeatOpacity(p) {
+  var b1 = p < 0.24 ? 1 : Math.max(1 - (p - 0.24) * 14, 0);
+  var b2 = Math.max(Math.min((p - 0.30) * 14, 1), 0) * (p < 0.56 ? 1 : Math.max(1 - (p - 0.56) * 14, 0));
+  var b3 = Math.max(Math.min((p - 0.62) * 14, 1), 0);
+  gsap.set('#cbeat1', { opacity: b1 }); gsap.set('#cbeat2', { opacity: b2 }); gsap.set('#cbeat3', { opacity: b3 });
+}
+
+if (reduced) {
+  cP = 1; setTimeout(function () { csFit(); drawCompass(); }, 200);
+  gsap.set('#cbeat3', { opacity: 1 });
+} else {
+  ScrollTrigger.create({
+    trigger: '#cscene', start: 'top top', end: '+=2400',
+    pin: true, scrub: 0.45,
+    onUpdate: function (st) { cP = st.progress; cBeatOpacity(st.progress); },
+  });
+  (function cLoop() { if (!document.hidden) drawCompass(); requestAnimationFrame(cLoop); })();
+}
+
+/* TRACK RECORD: data REAL desde signals.json (fallback demo) */
+var chainEl = document.getElementById('chain');
+var tbl = document.getElementById('trtable');
+
+function fakeHash() {
+  var h = ''; for (var i = 0; i < 8; i++) h += '0123456789abcdef'[Math.floor(Math.random() * 16)];
+  return h;
+}
+function pnlPct(s) {
+  var exit = s.close_price || s.entry_price;
+  var r = (exit - s.entry_price) / s.entry_price * 100;
+  return s.direction === 'short' ? -r : r;
+}
+function reasonPill(cr) {
+  if (!cr) return ['tp', 'ABIERTA'];
+  if (cr.indexOf('tp3') >= 0) return ['tp', 'TP3'];
+  if (cr.indexOf('tp2') >= 0) return ['tp', 'TP2'];
+  if (cr.indexOf('tp1') >= 0) return ['tp', 'TP1'];
+  if (cr.indexOf('sl') >= 0) return ['sl', 'SL'];
+  return ['sl', String(cr).toUpperCase().slice(0, 8)];
+}
+function addBlock(idLabel, hash, i) {
+  if (i > 0) { var lk = document.createElement('div'); lk.className = 'blk-link'; chainEl.appendChild(lk); }
+  var d = document.createElement('div'); d.className = 'blk';
+  d.innerHTML = '<div class="bh">' + idLabel + '</div>' +
+                '<div class="bv">' + hash + '…</div>' +
+                '<div class="bd">prev: enlazada ✓</div>';
+  chainEl.appendChild(d);
+}
+function addRow(label, dir, pillCls, pillTxt, pnl) {
+  var row = document.createElement('div'); row.className = 'tr-row';
+  var col = pnl >= 0 ? '#3CE6AC' : '#ef4444';
+  row.innerHTML = '<span>' + label + '</span>' +
+    '<span style="color:' + (dir === 'LONG' ? '#3CE6AC' : '#ef4444') + '">' + dir + '</span>' +
+    '<span class="pill ' + pillCls + '">' + pillTxt + '</span>' +
+    '<div class="pnl-bar"><i data-w="' + Math.min(Math.abs(pnl) * 45, 100) + '" style="background:' + col + '"></i></div>';
+  tbl.appendChild(row);
+}
+function armTrackReveals(total, wr, avg) {
+  ScrollTrigger.create({
+    trigger: '#chain', start: 'top 80%', once: true,
+    onEnter: function () {
+      gsap.to('.blk', { opacity: 1, y: 0, duration: .6, stagger: .22, ease: 'power3.out' });
+      gsap.to('.blk-link', { opacity: 1, scaleX: 1, duration: .35, stagger: .22, delay: .35 });
+    },
+  });
+  ScrollTrigger.create({
+    trigger: '#trtable', start: 'top 82%', once: true,
+    onEnter: function () {
+      gsap.to('.tr-row', { opacity: 1, duration: .5, stagger: .1 });
+      gsap.utils.toArray('.pnl-bar i').forEach(function (el, i) {
+        gsap.to(el, { width: el.dataset.w + '%', duration: .9, delay: .3 + i * .12, ease: 'power2.out' });
+      });
+    },
+  });
+  ScrollTrigger.create({
+    trigger: '#trstats', start: 'top 85%', once: true,
+    onEnter: function () {
+      var o = { a: 0, b: 0, c: 0 };
+      gsap.to(o, { a: total, b: wr, c: avg, duration: 1.6, ease: 'power2.out',
+        onUpdate: function () {
+          document.getElementById('tst1').textContent = Math.round(o.a);
+          document.getElementById('tst2').textContent = o.b.toFixed(1);
+          document.getElementById('tst3').textContent = (o.c >= 0 ? '+' : '') + o.c.toFixed(2);
+        } });
+    },
+  });
+  ScrollTrigger.sort(); ScrollTrigger.refresh();
+}
+function buildReal(d) {
+  var sigs = d.signals || [], m = d.metrics || {};
+  sigs.slice(-5).forEach(function (s, i) {
+    addBlock('señal #' + s.id, String(s.row_hash || fakeHash()).slice(0, 8), i);
+  });
+  sigs.filter(function (s) { return s.closed_at; }).slice(-5).reverse().forEach(function (s) {
+    var p = pnlPct(s), rp = reasonPill(s.close_reason);
+    addRow('#' + s.id + ' · ' + String(s.symbol).replace('USDT', ''),
+           String(s.direction).toUpperCase(), rp[0], rp[1], p);
+  });
+  document.getElementById('trnote').innerHTML = 'datos reales · ' + (m.closed || 0) +
+    ' señales cerradas · cadena verificable en <a href="verify.html" style="color:#3CE6AC">/verify</a> · no es asesoria financiera';
+  armTrackReveals(m.total || sigs.length, m.win_rate_pct || 0, m.avg_pnl_pct || 0);
+}
+function buildDemo() {
+  var DEMO = [['#112 · BTC', 'LONG', 'tp', 'TP2', 0.72], ['#111 · BTC', 'SHORT', 'tp', 'TP3', 1.0],
+              ['#110 · BTC', 'SHORT', 'tp', 'TP1', 0.38], ['#109 · BTC', 'LONG', 'sl', 'SL', -0.42],
+              ['#108 · BTC', 'SHORT', 'tp', 'TP3', 1.0]];
+  for (var b = 0; b < 5; b++) addBlock('señal #' + (108 + b), fakeHash(), b);
+  for (var s of DEMO) addRow(s[0], s[1], s[2], s[3], s[4]);
+  document.getElementById('trnote').textContent = 'datos de ejemplo (sin conexion a signals.json)';
+  armTrackReveals(29, 77.8, 0.75);
+}
+fetch('signals.json').then(function (r) { return r.json(); })
+  .then(buildReal).catch(buildDemo);
+
+// nav: anclas de todos los mundos
+document.querySelectorAll('.nav .links span').forEach(function (el) {
+  var target = el.textContent.trim().toLowerCase().replace(' record', '');
+  el.onclick = function () {
+    var sec = document.getElementById(target === 'track' ? 'track' : target);
+    if (sec) sec.scrollIntoView();
+  };
+});
+
+/* FIX pin-spacing: los triggers se crearon en orden distinto al DOM
+   (Foreshock antes que Compass) → Foreshock calculaba su start sin el
+   espacio del pin de Compass y aparecia encima. sort() reordena por
+   posicion en el documento y refresh() recalcula con los spacers. */
+ScrollTrigger.sort();
+ScrollTrigger.refresh();
+window.addEventListener('load', function () {
+  ScrollTrigger.sort();
+  ScrollTrigger.refresh();
+});
 </script>
 </body>
 </html>

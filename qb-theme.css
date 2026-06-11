@@ -1,0 +1,85 @@
+/* ============================================================
+   qb-theme.css — Template QuantumBlock 2026-06 (Seismograph DNA)
+   Overlay sobre styles.css: solo re-tokeniza + micro-vida.
+   Aplicado a track-record.html y verify.html sin tocar su logica.
+   Control de cambios: CHANGELOG.md · rollback: quitar este <link>
+   ============================================================ */
+
+:root, html[data-theme="dark"] {
+  /* base HyperFrames (alineada al landing nuevo) */
+  --bg:        #0a0a0a;
+  --bg-1:      #111111;
+  --bg-2:      #141414;
+  --bg-3:      #181818;
+  --line:      #262626;
+  --line-2:    #3a3a3a;
+  --ink:       #e5e5e5;
+  --ink-dim:   #a3a3a3;
+  --ink-faint: #737373;
+
+  /* acento QB unificado (teal del ecosistema) */
+  --green:     #3CE6AC;
+  --green-dim: #2bb886;
+  --green-bg:  rgba(60, 230, 172, 0.10);
+
+  --red:       #ef4444;
+  --red-dim:   #c93838;
+  --red-bg:    rgba(239, 68, 68, 0.10);
+
+  --amber:     #FFB02E;
+  --amber-bg:  rgba(255, 176, 46, 0.12);
+
+  --accent:    var(--green);
+  --hash-tone: #6fae97;
+
+  --grid:      rgba(255, 255, 255, 0.025);
+  --shadow:    0 0 0 1px var(--line);
+}
+
+body {
+  background: var(--bg);
+  font-family: "IBM Plex Mono", "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* titulos y labels en Inter (regla del template: labels Inter, valores mono) */
+h1, h2, h3, .serif, .kicker, .t-lbl, .panel-head, .header-block .meta {
+  font-family: "Inter", "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* micro-vida: hover de paneles y filas (sello del template) */
+[class*="panel"], .card, .dist-chart {
+  transition: border-color 0.25s ease;
+}
+[class*="panel"]:hover, .card:hover { border-color: var(--line-2); }
+tr { transition: background 0.15s ease; }
+tbody tr:hover { background: rgba(255, 255, 255, 0.018); }
+
+/* botones estilo template */
+.btn, .nav-btn, .filter-pill {
+  border-radius: 4px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.btn:hover, .nav-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 22px rgba(60, 230, 172, 0.18);
+}
+
+/* live dot reutilizable */
+.qb-live-dot {
+  display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green); margin-right: 6px; vertical-align: middle;
+  animation: qb-lp 2s ease-in-out infinite;
+}
+@keyframes qb-lp {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(60, 230, 172, 0.5); }
+  50%      { box-shadow: 0 0 0 5px rgba(60, 230, 172, 0); }
+}
+
+/* fondo canvas (qb-sea-lite.js) detras del contenido */
+#qb-sea-lite { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.5; }
+body > *:not(#qb-sea-lite) { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .qb-live-dot { animation: none; }
+  .btn, .nav-btn { transition: none; }
+}
