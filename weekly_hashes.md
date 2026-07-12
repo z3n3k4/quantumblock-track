@@ -18,3 +18,4 @@ el `row_hash` de la última señal pública coincide con la columna Hash de esta
 | 2026-06-21 | 138 señales | `d3b1ca9a530a73e4...710dd8be` | 2026-05-02T22:01 UTC |
 | 2026-06-28 | 165 señales | `d3b1ca9a530a73e4...710dd8be` | 2026-05-02T22:01 UTC |
 | 2026-07-05 | 194 señales | `d3b1ca9a530a73e4...710dd8be` | 2026-05-02T22:01 UTC |
+| 2026-07-12 | 219 señales | `d3b1ca9a530a73e4...710dd8be` | 2026-05-02T22:01 UTC |
