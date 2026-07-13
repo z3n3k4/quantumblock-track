@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-07-13 00:41 UTC",
+  "generated_at": "2026-07-13 03:05 UTC",
   "metrics": {
-    "total": 222,
+    "total": 223,
     "open": 1,
-    "closed": 221,
-    "win_rate_pct": 61.5,
-    "tp1_rate_pct": 61.5,
-    "tp2_rate_pct": 34.8,
+    "closed": 222,
+    "win_rate_pct": 61.3,
+    "tp1_rate_pct": 61.3,
+    "tp2_rate_pct": 34.7,
     "tp3_rate_pct": 12.2,
-    "avg_pnl_pct": 0.31,
+    "avg_pnl_pct": 0.3,
     "best_pct": 2.56,
     "worst_pct": -2.61
   },
@@ -5465,14 +5465,14 @@
       "tp1_hit_at": null,
       "tp2_hit_at": null,
       "tp3_hit_at": null,
-      "closed_at": null,
-      "close_reason": null,
-      "close_price": null,
+      "closed_at": "2026-07-13T03:12:25Z",
+      "close_reason": "sl",
+      "close_price": 62945.98,
       "execution_price": null,
       "prev_hash": "f8e5060bb4a2785fa7eb85e119dd9fc66e97cefe1c4a49d7b29752c248d66e68",
       "row_hash": "cd03910cc81e4409990d6b0616ced9ff73ff33f92ab6ec5fed616a6679adafde",
-      "pnl_pct": null,
-      "status": "Abierta"
+      "pnl_pct": -2.0,
+      "status": "Stop"
     },
     {
       "id": 213,
@@ -5785,6 +5785,32 @@
       "row_hash": "a0fd8bfe620a61f3d5cc51fb4039817b180fe367ed76e4149e0d11b9ba4b3a96",
       "pnl_pct": -1.23,
       "status": "Stop"
+    },
+    {
+      "id": 225,
+      "timestamp_emision": "2026-07-13T03:05:04Z",
+      "symbol": "BTCUSDT",
+      "direction": "short",
+      "timeframe": "60",
+      "entry_price": 63284.14,
+      "stop_loss": 64451.7,
+      "current_sl": null,
+      "target_1": 62883.6,
+      "target_2": 62616.57,
+      "target_3": 62216.02,
+      "source": "quantumblock",
+      "source_label": "Strategy",
+      "tp1_hit_at": null,
+      "tp2_hit_at": null,
+      "tp3_hit_at": null,
+      "closed_at": null,
+      "close_reason": null,
+      "close_price": null,
+      "execution_price": null,
+      "prev_hash": "a0fd8bfe620a61f3d5cc51fb4039817b180fe367ed76e4149e0d11b9ba4b3a96",
+      "row_hash": "0bee27809f83be4031d79cdd1a95d0824bcf626b3aa6c992e1619d6dbae2e5dc",
+      "pnl_pct": null,
+      "status": "Abierta"
     }
   ]
 }
