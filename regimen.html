@@ -108,9 +108,10 @@
     <div class="card">
       <div class="chart-head">
         <span class="lbl">Equity simulada · $1 inicial · escala log</span>
-        <div class="legend"><span><i style="background:var(--accent)"></i>QB v2</span><span><i style="background:var(--btc)"></i>Comprar y mantener</span></div>
+        <div class="legend"><span><i style="background:var(--accent)"></i>QB v2</span><span><i style="background:var(--btc)"></i>Comprar y mantener</span><span><i style="background:rgba(115,115,115,.5);height:10px;border-radius:2px"></i>FLAT (fuera)</span></div>
       </div>
       <canvas id="eq" aria-label="Curva de equity backtest QB v2 vs comprar y mantener"></canvas>
+      <div style="color:var(--muted);font-size:11px;margin-top:9px">Las franjas grises = tramos <b style="color:var(--text)">FLAT</b> (en efectivo, fuera del mercado). Fijate cómo cubren el bajón de 2022 y la caída reciente, justo donde la línea verde queda plana.</div>
     </div>
     <div class="card">
       <div class="lbl" style="margin-bottom:14px">Estado actual · 2026-07-13</div>
@@ -175,6 +176,15 @@ const TRANS=[{"date":"2019-05-23","to":"LONG","btc":7852},{"date":"2019-09-30","
 const YEARS={"2018":0.0,"2019":0.9,"2020":227.7,"2021":-8.3,"2022":3.1,"2023":37.4,"2024":41.7,"2025":-1.2,"2026":0.0};
 const css=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim();
 
+// índice fraccional en EQ (mensual, base 2018-03) para una fecha YYYY-MM-DD
+function idxOf(s){const p=s.split('-'),Y=+p[0],M=+p[1],D=p[2]?+p[2]:1;
+  const base=(Y-2018)*12+(M-3),dim=new Date(Y,M,0).getDate();
+  return Math.max(0,Math.min(EQ.length-1,base+(D-1)/dim));}
+// tramos FLAT (fuera del mercado) como pares [idxInicio, idxFin]. Estado inicial = FLAT.
+function flatSegments(){const segs=[];let st='FLAT',s0=0;
+  TRANS.forEach(t=>{if(t.to!==st){if(st==='FLAT')segs.push([s0,idxOf(t.date)]);st=t.to;s0=idxOf(t.date);}});
+  if(st==='FLAT')segs.push([s0,EQ.length-1]);return segs;}
+
 function drawChart(){
   const c=document.getElementById('eq'),dpr=Math.min(window.devicePixelRatio||1,2);
   const W=c.clientWidth,H=c.clientHeight;
@@ -186,6 +196,8 @@ function drawChart(){
   const ly=v=>Math.log10(Math.max(v,0.4)),yLo=ly(lo),yHi=ly(hi);
   const px=i=>pad.l+(W-pad.l-pad.r)*(i/(EQ.length-1));
   const py=v=>pad.t+(H-pad.t-pad.b)*(1-(ly(v)-yLo)/(yHi-yLo));
+  x.fillStyle='rgba(115,115,115,.11)';                    // franjas FLAT (fuera del mercado)
+  flatSegments().forEach(([a,b])=>{const X0=px(a);x.fillRect(X0,pad.t,Math.max(px(b)-X0,0.8),H-pad.t-pad.b);});
   x.font='10px '+css('--mono');x.textAlign='right';x.textBaseline='middle';
   [1,2,4,8].forEach(g=>{if(g<lo*0.9||g>hi*1.1)return;const y=py(g);
     x.strokeStyle='rgba(255,255,255,.045)';x.beginPath();x.moveTo(pad.l,y);x.lineTo(W-pad.r,y);x.stroke();
