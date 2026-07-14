@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QB v2 · Track Record</title>
+<style>
+  :root{
+    color-scheme:dark;
+    --bg:#0a0a0a; --card:#111111; --panel:#141414; --border:#262626;
+    --text:#e5e5e5; --muted:#737373; --accent:#3CE6AC;
+    --red:#ef4444; --amber:#fbbf24; --green:#22c55e; --btc:#F7B731;
+    --font:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+    --mono:"IBM Plex Mono","JetBrains Mono","Fira Code",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 24px 80px}
+  .lbl{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+  /* BACKTEST banner (caution = amber) */
+  .banner{background:#141414;border-bottom:1px solid var(--border);border-top:2px solid var(--amber)}
+  .banner .in{max-width:1000px;margin:0 auto;padding:13px 24px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+  .banner b{color:var(--amber);letter-spacing:.16em;font-size:11px;text-transform:uppercase;font-weight:700}
+  .banner span{color:var(--muted);font-size:13px}
+
+  header{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:34px 0 6px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:12px}
+  .badge{background:var(--accent);color:var(--bg);border-radius:4px;padding:4px 9px;font-weight:800;font-size:13px;letter-spacing:.02em}
+  h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-.01em}
+  h1 small{color:var(--muted);font-weight:500;font-size:14px;margin-left:6px}
+  .staging{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
+  .staging .dot{width:7px;height:7px;border-radius:50%;background:var(--amber)}
+  .sub{color:var(--muted);margin:10px 0 0;font-size:15px;max-width:66ch}
+
+  .live-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);
+    border:1px solid var(--border);border-radius:6px;overflow:hidden;margin:22px 0}
+  .live-strip>div{background:var(--panel);padding:13px 16px}
+  .live-strip .n{font-size:19px;font-weight:700;margin-top:4px;font-family:var(--mono)}
+
+  .grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:14px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}.live-strip{grid-template-columns:1fr}header{align-items:flex-start}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px}
+
+  .readout{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+  .rdot{width:10px;height:10px;border-radius:50%;flex:none}
+  .state-big{font-size:24px;font-weight:700;letter-spacing:.02em}
+  .kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--border);font-size:14px}
+  .kv:first-of-type{border-top:0}
+  .kv span:first-child{color:var(--muted)}
+
+  canvas{width:100%;height:290px;display:block}
+  .chart-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;flex-wrap:wrap;gap:8px}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--muted)}
+  .legend i{display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;font-family:var(--mono)}
+  th,td{padding:10px 8px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+  th:first-child,td:first-child{text-align:left;font-family:var(--font)}
+  thead th{color:var(--muted);font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:600}
+  td:nth-child(2){color:var(--accent);font-weight:600}
+  td:nth-child(3){color:var(--btc)}
+  .good{color:var(--accent)} .bad{color:var(--red)}
+
+  .yearbars{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+  .yb{display:grid;grid-template-columns:48px 1fr 72px;gap:10px;align-items:center;font-size:13px}
+  .yb .track{height:8px;background:var(--panel);border-radius:4px;position:relative;overflow:hidden}
+  .yb .fill{position:absolute;top:0;bottom:0;border-radius:4px}
+
+  .trans{max-height:270px;overflow:auto;border:1px solid var(--border);border-radius:6px}
+  .trow{display:grid;grid-template-columns:100px 60px 1fr;gap:8px;padding:9px 14px;border-bottom:1px solid var(--border);font-size:13px;align-items:center}
+  .trow:last-child{border-bottom:0}
+  .pill{font-size:10px;font-weight:700;letter-spacing:.08em;padding:3px 8px;border-radius:4px;text-align:center}
+  .pill.LONG{background:rgba(60,230,172,.14);color:var(--accent)}
+  .pill.FLAT{background:rgba(115,115,115,.18);color:var(--muted)}
+
+  h2{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:40px 0 14px}
+  .notes{margin:0;padding-left:18px}
+  .notes li{margin:8px 0;font-size:14px}
+  .assum{color:var(--muted);font-size:12px;display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;font-family:var(--mono)}
+  .disclaimer{margin-top:44px;padding-top:20px;border-top:1px solid var(--border);color:var(--muted);font-size:12px;line-height:1.7}
+  .foot{color:#555;font-size:11px;margin-top:16px;font-family:var(--mono)}
+  a{color:var(--accent)}
+</style>
+
+<div class="banner"><div class="in">
+  <b>Backtest</b>
+  <span>Esto <strong style="color:var(--text)">no</strong> es rendimiento en vivo. Es una simulación histórica de la regla, con costos y retardo de 1 día. El registro <em>en vivo</em> empieza en el go-live.</span>
+</div></div>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <span class="badge">QB</span>
+      <h1>v2 · Régimen BTC<small>track record</small></h1>
+    </div>
+    <div class="staging"><span class="dot"></span>PÁGINA DE REVISIÓN · PRE GO-LIVE</div>
+  </header>
+  <p class="sub">Sistema de <strong style="color:var(--text)">gestión de exposición</strong>, no de predicción. Indica cuándo la tendencia mayor de Bitcoin favorece estar dentro (<b style="color:var(--accent)">LONG</b>) o fuera, en efectivo (<b style="color:var(--muted)">FLAT</b>). Señales poco frecuentes; largos periodos sin cambios.</p>
+
+  <div class="live-strip">
+    <div><div class="lbl">Registro en vivo</div><div class="n" style="color:var(--amber)">0 días</div></div>
+    <div><div class="lbl">Señales públicas</div><div class="n">0</div></div>
+    <div><div class="lbl">Rendimiento en vivo</div><div class="n" style="color:var(--muted)">N/A</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="chart-head">
+        <span class="lbl">Equity simulada · $1 inicial · escala log</span>
+        <div class="legend"><span><i style="background:var(--accent)"></i>QB v2</span><span><i style="background:var(--btc)"></i>Comprar y mantener</span></div>
+      </div>
+      <canvas id="eq" aria-label="Curva de equity backtest QB v2 vs comprar y mantener"></canvas>
+    </div>
+    <div class="card">
+      <div class="lbl" style="margin-bottom:14px">Estado actual · 2026-07-13</div>
+      <div class="readout">
+        <span class="rdot" style="background:var(--muted)"></span>
+        <div><div class="state-big" style="color:var(--muted)">FLAT</div><div style="color:var(--muted);font-size:12px">fuera del mercado — a efectivo</div></div>
+      </div>
+      <div class="kv"><span>En este estado desde</span><span class="mono">2025-11-07 · 248 d</span></div>
+      <div class="kv"><span>BTC</span><span class="mono" style="color:var(--btc)">$62,335</span></div>
+      <div class="kv"><span>MA200</span><span class="mono">$73,786 · −15.5%</span></div>
+      <div class="kv"><span>Pendiente 20d</span><span class="mono" style="color:var(--red)">−3.54%</span></div>
+      <p style="color:var(--muted);font-size:12px;margin:14px 0 0">El valor no es operar más, sino la disciplina de quedar fuera cuando el régimen es desfavorable.</p>
+    </div>
+  </div>
+
+  <h2>Backtest 2018-2026 · vs. comprar y mantener</h2>
+  <div class="card" style="padding:4px 18px">
+    <table>
+      <thead><tr><th>Métrica</th><th>QB v2</th><th>Comprar y mantener</th></tr></thead>
+      <tbody>
+        <tr><td>Retorno anual (CAGR)</td><td>+24.1%</td><td>+27.0%</td></tr>
+        <tr><td>$1 se convirtió en</td><td>$6.01</td><td>$7.29</td></tr>
+        <tr><td>Peor caída (drawdown)</td><td class="good">−62.6%</td><td class="bad">−76.6%</td></tr>
+        <tr><td>Sharpe</td><td>0.73</td><td>0.70</td></tr>
+        <tr><td>Tiempo invertido</td><td>47%</td><td>100%</td></tr>
+        <tr><td>Transiciones (8.4 años)</td><td>22 · ~1-3/año</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="sub" style="margin-top:14px;max-width:74ch">La lectura honesta: QB v2 <strong style="color:var(--text)">no le gana</strong> a Bitcoin en retorno — captura una parte parecida del alza con <strong style="color:var(--text)">14 puntos menos de drawdown</strong>, riesgo ajustado casi igual (Sharpe) y estando <strong style="color:var(--text)">fuera casi la mitad del tiempo</strong>. Es un intercambio: algo de retorno por mucho menos dolor y capital libre.</p>
+
+  <h2>Retorno por año · el retorno es "grumoso"</h2>
+  <div class="card">
+    <div class="yearbars" id="years"></div>
+    <p style="color:var(--muted);font-size:12px;margin:14px 0 0">Tres años (2020, 2023, 2024) explican casi todo el retorno. Los años planos o negativos son parte normal del sistema — hay que poder atravesarlos sin abandonarlo.</p>
+  </div>
+
+  <h2>Historial de señales · todas las transiciones del backtest</h2>
+  <div class="trans" id="trans"></div>
+
+  <h2>Supuestos y método</h2>
+  <div class="card">
+    <ul class="notes">
+      <li>Regla: precio diario de BTC sobre su media de 200 días <em>y</em> pendiente positiva, con confirmación de 5 días. LONG / FLAT.</li>
+      <li>Solo posiciones al alza o efectivo — <strong style="color:var(--text)">sin ventas en corto, sin apalancamiento</strong>.</li>
+      <li>Todo el histórico es simulación. La parte en vivo empezará en el go-live y no se retoca hacia atrás.</li>
+    </ul>
+    <div class="assum">
+      <span>Fuente: Binance BTC/USDT diario</span><span>Costos: 0.20% por cambio</span><span>Retardo: 1 día</span>
+    </div>
+  </div>
+
+  <p class="disclaimer">
+    <strong style="color:var(--text)">Backtest, no rendimiento en vivo.</strong> Los resultados históricos son una simulación y no representan operaciones reales. El rendimiento pasado no garantiza resultados futuros. Este contenido es una señal educativa sobre el régimen de mercado de Bitcoin, no asesoría financiera ni una recomendación de compra o venta.
+  </p>
+  <p class="foot">Generado 2026-07-14 10:20 UTC · QuantumBlock v2 · régimen BTC</p>
+</div>
+
+<script>
+const EQ=[["2018-03",1.0,0.81],["2018-04",1.0,1.082],["2018-05",1.0,0.876],["2018-06",1.0,0.748],["2018-07",1.0,0.905],["2018-08",1.0,0.82],["2018-09",1.0,0.775],["2018-10",1.0,0.746],["2018-11",1.0,0.473],["2018-12",1.0,0.433],["2019-01",1.0,0.402],["2019-02",1.0,0.446],["2019-03",1.0,0.48],["2019-04",1.0,0.623],["2019-05",1.087,1.001],["2019-06",1.38,1.27],["2019-07",1.281,1.179],["2019-08",1.219,1.122],["2019-09",1.054,0.97],["2019-10",1.048,1.069],["2019-11",1.009,0.882],["2019-12",1.009,0.842],["2020-01",1.009,1.094],["2020-02",1.009,0.997],["2020-03",1.009,0.75],["2020-04",1.009,1.009],["2020-05",1.08,1.105],["2020-06",1.045,1.069],["2020-07",1.296,1.326],["2020-08",1.332,1.363],["2020-09",1.232,1.261],["2020-10",1.577,1.614],["2020-11",2.252,2.304],["2020-12",3.307,3.384],["2021-01",3.784,3.872],["2021-02",5.161,5.281],["2021-03",6.716,6.873],["2021-04",6.597,6.75],["2021-05",4.373,4.359],["2021-06",4.373,4.1],["2021-07",4.373,4.851],["2021-08",4.153,5.511],["2021-09",4.146,5.128],["2021-10",4.021,7.172],["2021-11",3.735,6.663],["2021-12",3.031,5.407],["2022-01",3.124,4.501],["2022-02",3.124,5.05],["2022-03",3.124,5.325],["2022-04",3.124,4.403],["2022-05",3.124,3.721],["2022-06",3.124,2.333],["2022-07",3.124,2.725],["2022-08",3.124,2.346],["2022-09",3.124,2.272],["2022-10",3.124,2.397],["2022-11",3.124,2.008],["2022-12",3.124,1.935],["2023-01",3.124,2.706],["2023-02",3.12,2.708],["2023-03",3.295,3.331],["2023-04",3.384,3.42],["2023-05",3.15,3.184],["2023-06",3.527,3.565],["2023-07",3.384,3.42],["2023-08",3.018,3.035],["2023-09",3.018,3.155],["2023-10",3.517,4.053],["2023-11",3.83,4.414],["2023-12",4.293,4.947],["2024-01",4.323,4.982],["2024-02",6.207,7.152],["2024-03",7.237,8.34],["2024-04",6.16,7.099],["2024-05",6.857,7.902],["2024-06",6.373,7.344],["2024-07",5.784,7.562],["2024-08",4.924,6.9],["2024-09",4.924,7.409],["2024-10",4.924,8.224],["2024-11",6.269,11.28],["2024-12",6.085,10.949],["2025-01",6.661,11.984],["2025-02",5.485,9.869],["2025-03",5.368,9.659],["2025-04",5.489,11.018],["2025-05",6.096,12.237],["2025-06",6.245,12.536],["2025-07",6.747,13.545],["2025-08",6.309,12.665],["2025-09",6.647,13.344],["2025-10",6.389,12.824],["2025-11",6.011,10.572],["2025-12",6.011,10.255],["2026-01",6.011,9.213],["2026-02",6.011,7.836],["2026-03",6.011,7.989],["2026-04",6.011,8.933],["2026-05",6.011,8.62],["2026-06",6.011,6.859],["2026-07",6.011,7.293]];
+const TRANS=[{"date":"2019-05-23","to":"LONG","btc":7852},{"date":"2019-09-30","to":"FLAT","btc":8289},{"date":"2019-10-30","to":"LONG","btc":9155},{"date":"2019-11-12","to":"FLAT","btc":8822},{"date":"2020-05-12","to":"LONG","btc":8811},{"date":"2021-05-25","to":"FLAT","btc":38325},{"date":"2021-08-23","to":"LONG","btc":49489},{"date":"2021-09-14","to":"FLAT","btc":47112},{"date":"2021-10-25","to":"LONG","btc":63079},{"date":"2022-01-01","to":"FLAT","btc":47723},{"date":"2023-01-31","to":"LONG","btc":23125},{"date":"2023-03-13","to":"FLAT","btc":24113},{"date":"2023-03-19","to":"LONG","btc":27973},{"date":"2023-08-21","to":"FLAT","btc":26127},{"date":"2023-10-20","to":"LONG","btc":29669},{"date":"2024-07-08","to":"FLAT","btc":56715},{"date":"2024-07-17","to":"LONG","btc":64088},{"date":"2024-08-07","to":"FLAT","btc":55134},{"date":"2024-11-06","to":"LONG","btc":75572},{"date":"2025-04-01","to":"FLAT","btc":85158},{"date":"2025-04-26","to":"LONG","btc":94628},{"date":"2025-11-07","to":"FLAT","btc":103339}];
+const YEARS={"2018":0.0,"2019":0.9,"2020":227.7,"2021":-8.3,"2022":3.1,"2023":37.4,"2024":41.7,"2025":-1.2,"2026":0.0};
+const css=k=>getComputedStyle(document.documentElement).getPropertyValue(k).trim();
+
+function drawChart(){
+  const c=document.getElementById('eq'),dpr=Math.min(window.devicePixelRatio||1,2);
+  const W=c.clientWidth,H=c.clientHeight;
+  if(!W||!H)return;                       // canvas aún sin dimensiones: el ResizeObserver reintenta
+  c.width=W*dpr;c.height=H*dpr;
+  const x=c.getContext('2d');x.scale(dpr,dpr);x.clearRect(0,0,W,H);
+  const pad={l:42,r:18,t:14,b:22};
+  const vals=EQ.flatMap(d=>[d[1],d[2]]),lo=Math.min(...vals),hi=Math.max(...vals);
+  const ly=v=>Math.log10(Math.max(v,0.4)),yLo=ly(lo),yHi=ly(hi);
+  const px=i=>pad.l+(W-pad.l-pad.r)*(i/(EQ.length-1));
+  const py=v=>pad.t+(H-pad.t-pad.b)*(1-(ly(v)-yLo)/(yHi-yLo));
+  x.font='10px '+css('--mono');x.textAlign='right';x.textBaseline='middle';
+  [1,2,4,8].forEach(g=>{if(g<lo*0.9||g>hi*1.1)return;const y=py(g);
+    x.strokeStyle='rgba(255,255,255,.045)';x.beginPath();x.moveTo(pad.l,y);x.lineTo(W-pad.r,y);x.stroke();
+    x.fillStyle=css('--muted');x.fillText(g+'×',pad.l-8,y);});
+  x.save();x.font='700 42px '+css('--font');x.fillStyle=css('--amber');x.globalAlpha=0.06;
+  x.textAlign='center';x.textBaseline='middle';x.translate(W/2,H/2);x.rotate(-0.14);x.fillText('BACKTEST',0,0);x.restore();
+  const line=(idx,color,wdt)=>{x.strokeStyle=color;x.lineWidth=wdt;x.lineJoin='round';x.beginPath();
+    EQ.forEach((d,i)=>{const X=px(i),Y=py(d[idx]);i?x.lineTo(X,Y):x.moveTo(X,Y);});x.stroke();};
+  line(2,css('--btc'),1.4);
+  line(1,css('--accent'),2.2);
+  const last=EQ.length-1;
+  [[2,css('--btc')],[1,css('--accent')]].forEach(([k,col])=>{x.fillStyle=col;x.beginPath();x.arc(px(last),py(EQ[last][k]),3.2,0,7);x.fill();});
+  const gx=W-pad.r;x.setLineDash([3,3]);x.strokeStyle=css('--amber');x.lineWidth=1;
+  x.beginPath();x.moveTo(gx,pad.t);x.lineTo(gx,H-pad.b);x.stroke();x.setLineDash([]);
+  x.fillStyle=css('--amber');x.font='700 9px '+css('--mono');x.textAlign='right';x.textBaseline='top';
+  x.fillText('EN VIVO ▶',gx-3,pad.t+2);
+}
+function buildYears(){
+  const el=document.getElementById('years'),mx=Math.max(...Object.values(YEARS).map(Math.abs));
+  el.innerHTML=Object.entries(YEARS).map(([y,v])=>{
+    const w=Math.abs(v)/mx*50,col=v>=0?'var(--green)':'var(--red)';
+    const style=v>=0?`left:50%;width:${w}%;background:${col}`:`right:50%;width:${w}%;background:${col}`;
+    return `<div class="yb"><span class="mono">${y}</span><div class="track"><div class="fill" style="${style}"></div></div>
+      <span class="mono" style="text-align:right;color:${col}">${v>=0?'+':''}${v.toFixed(1)}%</span></div>`;
+  }).join('');
+}
+function buildTrans(){
+  document.getElementById('trans').innerHTML=TRANS.slice().reverse().map(t=>
+    `<div class="trow"><span class="mono">${t.date}</span><span class="pill ${t.to}">${t.to}</span>
+     <span class="mono" style="color:var(--btc);text-align:right">BTC $${t.btc.toLocaleString('en-US')}</span></div>`).join('');
+}
+buildYears();buildTrans();
+requestAnimationFrame(drawChart);                     // dibuja tras el layout (fix canvas en blanco)
+addEventListener('resize',drawChart);
+new ResizeObserver(drawChart).observe(document.getElementById('eq'));  // redibuja cuando el canvas tiene ancho
+
+</html>
