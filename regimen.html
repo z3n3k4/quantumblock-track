@@ -196,12 +196,15 @@ function drawChart(){
   const ly=v=>Math.log10(Math.max(v,0.4)),yLo=ly(lo),yHi=ly(hi);
   const px=i=>pad.l+(W-pad.l-pad.r)*(i/(EQ.length-1));
   const py=v=>pad.t+(H-pad.t-pad.b)*(1-(ly(v)-yLo)/(yHi-yLo));
-  x.fillStyle='rgba(115,115,115,.11)';                    // franjas FLAT (fuera del mercado)
-  flatSegments().forEach(([a,b])=>{const X0=px(a);x.fillRect(X0,pad.t,Math.max(px(b)-X0,0.8),H-pad.t-pad.b);});
+  flatSegments().forEach(([a,b])=>{const X0=px(a),X1=px(b);     // franjas FLAT (fuera del mercado)
+    x.fillStyle='rgba(115,115,115,.11)';x.fillRect(X0,pad.t,Math.max(X1-X0,0.8),H-pad.t-pad.b);
+    if(b-a>=4){x.fillStyle=css('--muted');x.font='700 9px '+css('--mono');x.textAlign='center';x.textBaseline='top';x.fillText('FLAT',(X0+X1)/2,pad.t+4);}});
   x.font='10px '+css('--mono');x.textAlign='right';x.textBaseline='middle';
   [1,2,4,8].forEach(g=>{if(g<lo*0.9||g>hi*1.1)return;const y=py(g);
     x.strokeStyle='rgba(255,255,255,.045)';x.beginPath();x.moveTo(pad.l,y);x.lineTo(W-pad.r,y);x.stroke();
     x.fillStyle=css('--muted');x.fillText(g+'×',pad.l-8,y);});
+  x.fillStyle=css('--muted');x.font='9px '+css('--mono');x.textAlign='center';x.textBaseline='alphabetic';
+  for(let Y=2019;Y<=2026;Y++){const i=(Y-2018)*12-2;if(i<0||i>EQ.length-1)continue;x.fillText(Y,px(i),H-6);}
   x.save();x.font='700 42px '+css('--font');x.fillStyle=css('--amber');x.globalAlpha=0.06;
   x.textAlign='center';x.textBaseline='middle';x.translate(W/2,H/2);x.rotate(-0.14);x.fillText('BACKTEST',0,0);x.restore();
   const line=(idx,color,wdt)=>{x.strokeStyle=color;x.lineWidth=wdt;x.lineJoin='round';x.beginPath();
